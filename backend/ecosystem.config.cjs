@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "checkers-backend",
-      script: "./dist/server.js", // путь к собранному JS
+      script: "./backend/dist/server.js", // путь к собранному JS
       instances: 1,
       autorestart: true,
       watch: false,

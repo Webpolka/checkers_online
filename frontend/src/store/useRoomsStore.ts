@@ -12,7 +12,7 @@ import type {
 } from "../types/rooms.types";
 
 const GAME_TYPE = "checkers";
-const SERVER_URL = "http://localhost:3000";
+// const SERVER_URL = "http://localhost:3000";
 
 interface RoomsState {
   socket: Socket | null;
@@ -65,7 +65,11 @@ export const useRoomsStore = create<RoomsState>()(
         if (get().socket) return;
 
         get().initPlayer();
-        const socket = io(SERVER_URL);
+        const socket = io({
+          path: "/socket.io/", // путь совпадает с nginx
+          transports: ["websocket", "polling"], // явный порядок
+        });
+
         set({ socket });
 
         socket.on("connect", () => {

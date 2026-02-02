@@ -94,7 +94,7 @@ export function GamePage() {
   };
 
   // Определяем ID игрока, чей сейчас ход
-  const currentTurnPlayerId = game.players.find((p, i) => {
+  const currentTurnPlayerId = game.players.find((_p, i) => {
     if (checkersState.currentPlayer === "w") return i === 0;
     if (checkersState.currentPlayer === "b") return i === 1;
     return false;

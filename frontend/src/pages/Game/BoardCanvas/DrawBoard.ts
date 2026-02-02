@@ -3,7 +3,6 @@ import { mapCell, isMandatory, isAvailable } from "./BoardUtils";
 
 export const drawBoard = (
   ctx: CanvasRenderingContext2D,
-  board: BoardType,
   size: number,
   canvasSize: number,
   margin: number,

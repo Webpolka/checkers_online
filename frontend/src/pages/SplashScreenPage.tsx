@@ -26,7 +26,7 @@ export const SplashScreenPage = () => {
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="text-5xl md:text-6xl font-extrabold text-white"
         >
-          Шашки Русские Классические Online
+          Шашки Русские Классические <span className="text-green-500">Online</span>
         </motion.h1>
 
         {/* Описание */}

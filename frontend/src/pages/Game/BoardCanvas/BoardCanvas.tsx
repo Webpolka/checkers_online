@@ -48,7 +48,7 @@ export function BoardCanvas({
     canvas.width = canvasSize;
     canvas.height = canvasSize;
 
-    drawBoard(ctx, localBoard, size, canvasSize, margin, selected, availableMoves, mandatoryPieces, playerColor);
+    drawBoard(ctx, size, canvasSize, margin, selected, availableMoves, mandatoryPieces, playerColor);
     drawPieces(ctx, localBoard, size, canvasSize, margin, playerColor);
     drawCoordinates(ctx, size, canvasSize, margin, playerColor);
   };

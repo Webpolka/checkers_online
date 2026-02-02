@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
-    "dev": "node --loader ts-node/esm src/server.ts",
+    "dev": "node -r tsconfig-paths/register --loader ts-node/esm src/server.ts",
     "prod": "npm run build && npm run start"
   },
   "keywords": [],

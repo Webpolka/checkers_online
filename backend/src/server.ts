@@ -1,4 +1,6 @@
 // server/index.ts
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -26,6 +28,19 @@ const io = new Server(httpServer, {
 
 let rooms: ServerRoom[] = [];
 
+// ------------------ SERVE FRONTEND ------------------
+// Получаем путь к текущему файлу
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const frontendPath = path.join(__dirname, "../../frontend/dist");
+// отдаём фронт
+app.use(express.static(frontendPath));
+
+// fallback для SPA
+app.use((req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 // ------------------ UTILS ------------------
 const safeCallback = (callback?: (...args: any[]) => void, ...args: any[]) => {
   if (typeof callback === "function") callback(...args);

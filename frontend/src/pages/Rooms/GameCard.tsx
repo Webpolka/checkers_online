@@ -8,9 +8,10 @@ type Props = {
   currentPlayer: Player | null;
   onJoin: () => void;
   onDelete: () => void;
+  roomVsAI: boolean;
 };
 
-export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
+export const GameCard = ({ game, currentPlayer, onJoin, onDelete, roomVsAI }: Props) => {
   const isPlayerInGame = game.players?.some(p => p.id === currentPlayer?.id);
   const isCreator = currentPlayer?.id === game.creator?.id;
 
@@ -39,6 +40,9 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
         ) ?? null;
     }
   }
+
+
+  const canJoin = game.vsAI === roomVsAI;
 
   return (
     <div className="bg-green-100 rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row p-4 gap-4 sm:gap-6">
@@ -97,36 +101,39 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
             <AppButton
               variant="danger"
               onClick={onDelete}
-              className="px-4 py-1 text-sm sm:text-sm"
+              className="h-10 px-4 py-0 text-sm flex items-center justify-center"
             >
               Удалить
             </AppButton>
           )
         ) : (
           <>
-            {!isPlayerInGame && (
-              <AppButton
-                variant="accent"
-                onClick={onJoin}
-                className="px-4 py-1 text-sm sm:text-sm"
-              >
+            {!isPlayerInGame && canJoin && (
+              <AppButton variant="accent" onClick={onJoin}  className="h-10 px-4 py-0 text-sm flex items-center justify-center">
                 Присоединиться
               </AppButton>
             )}
+
+            {!canJoin && (
+              <div className="text-xs text-gray-400">
+                Игра другого режима
+              </div>
+            )}
+
             {isPlayerInGame && (
               <AppButton
                 variant="primary"
                 onClick={onJoin}
-                className="px-4 py-1 text-sm sm:text-sm"
+                className="h-10 px-4 py-0 text-sm flex items-center justify-center"
               >
-                Вернуться
+                В игру
               </AppButton>
             )}
             {isCreator && (
               <AppButton
                 variant="danger"
                 onClick={onDelete}
-                className="px-4 py-1 text-sm sm:text-sm"
+                className="h-10 px-4 py-0 text-sm flex items-center justify-center"
               >
                 Удалить
               </AppButton>

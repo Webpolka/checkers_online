@@ -18,6 +18,7 @@ import {
 import { CheckersService } from "./games/checkers/services.js";
 import { initCheckersGame } from "./games/checkers/init.js";
 import { ServerPlayer } from "./types.js";
+import { applyCheckersMove } from "./games/checkers/applyMove.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -95,19 +96,34 @@ setInterval(() => {
 
   rooms.forEach((room) => {
     // оставляем только тех игроков, у кого есть активное соединение
+    room.players.forEach((p) => {
+      if (
+        p.id.startsWith("ai_") &&
+        room.players.some((rp) => !rp.id.startsWith("ai_"))
+      ) {
+        p.lastSeen = now;
+      }
+    });
+
     // или последний heartbeat был менее 30 секунд назад
     room.players = room.players.filter((p) => {
+      const isAI = p.id.startsWith("ai_");
+      if (isAI) {
+        // AI живёт максимум 30 секунд, если он один
+        return now - (p.lastSeen ?? 0) < DISCONNECT_TIMEOUT;
+      }
+      // обычный игрок
       return p.connected || now - (p.lastSeen ?? 0) < DISCONNECT_TIMEOUT;
     });
 
     // очищаем игроков из игр
-    room.games.forEach((game) => {     
-
-      game.players = game.players.filter((p) =>
-        room.players.some((rp) => rp.id === p.id),
+    room.games.forEach((game) => {
+      game.players = game.players.filter(
+        (p) =>
+          p.id.startsWith("ai_") || room.players.some((rp) => rp.id === p.id),
       );
 
-       if (game.status === "finished") return;
+      if (game.status === "finished") return;
 
       // если игроков стало меньше 2 — игра снова waiting
       if (game.players.length < 2) game.status = "waiting";
@@ -171,6 +187,7 @@ io.on("connection", (socket) => {
       players: [serverPlayer],
       games: [],
       createdAt: Date.now(),
+      creator: player,
     };
 
     rooms.push(room);
@@ -198,6 +215,51 @@ io.on("connection", (socket) => {
     broadcastRoomsUpdate();
   });
 
+  socket.on(
+    "update_room",
+    (data: { playerId: string; roomId: string; vsAI: boolean }) => {
+      const room = rooms.find((r) => r.id === data.roomId);
+      if (!room) return;
+
+      // Очищаем комнату и оставляем только текущего игрока
+      const player = room.players.find((p) => p.id === data.playerId);
+      if (!player) return; // на всякий случай
+      room.players = [player];
+
+      const botId = "ai_" + room.id;
+      const botIndex = room.players.findIndex((p) => p.id === botId);
+
+      if (data.vsAI) {
+        // Добавляем бота, если его ещё нет
+        if (botIndex === -1) {
+          const aiPlayer: ServerPlayer = {
+            id: botId,
+            first_name: "AI",
+            photo_url: "/images/ai-avatar.webp",
+            socketId: "",
+            connected: false,
+            lastSeen: Date.now(),
+            isAI: true,
+          };
+          room.players.push(aiPlayer);
+        }
+      } else {
+        // Убираем бота, если есть
+        if (botIndex !== -1) {
+          room.players.splice(botIndex, 1);
+        }
+      }
+
+      // Чистим дубликаты на всякий случай
+      room.players = room.players.filter(
+        (p, i, self) => i === self.findIndex((x) => x.id === p.id),
+      );
+
+      // Рассылаем обновлённую комнату всем клиентам
+      broadcastRoomsUpdate();
+    },
+  );
+
   socket.on("leave_room", (player: Player, roomId: string, callback) => {
     removePlayerFromRoom(player.id, roomId);
     safeCallback(callback, true);
@@ -207,17 +269,33 @@ io.on("connection", (socket) => {
   // ------------------ GAMES ------------------
   socket.on(
     "create_game",
-    (data: { roomId: string; type: string; creator: Player }) => {
+    (data: {
+      roomId: string;
+      type: string;
+      creator: Player;
+      vsAI: boolean;
+    }) => {
       const room = rooms.find((r) => r.id === data.roomId);
       if (!room) return;
+
+      const creator = room.players.find((p) => p.socketId === socket.id);
+      if (!creator) return;
+
+      const aiFromRoom = room.players.find((p) => p.id.startsWith("ai_"));
+      const players: ServerPlayer[] = [creator];
+
+      if (data.vsAI && aiFromRoom) {
+        players.push(aiFromRoom);
+      }
 
       const game: Game = {
         id: generateId(6),
         roomId: room.id,
         type: data.type,
-        players: [],
+        players: players,
         status: "waiting",
         creator: data.creator,
+        vsAI: data.vsAI,
         history: [],
         state: data.type === "checkers" ? initCheckersGame() : undefined,
       };
@@ -273,38 +351,14 @@ io.on("connection", (socket) => {
     "make_move",
     (data: { gameId: string; move: Move<CheckersMove> }) => {
       const { gameId, move } = data;
-      const playerId = move.playerId;
 
       const room = rooms.find((r) => r.games.some((g) => g.id === gameId));
       if (!room) return;
+
       const game = room.games.find((g) => g.id === gameId);
-      if (!game || !game.state) return;
+      if (!game) return;
 
-      // Проверяем, что игрок участвует
-      if (!game.players.some((p) => p.id === playerId)) return;
-
-      const service = new CheckersService(game.state as CheckersState);
-      const success = service.makeMove(move);
-      if (!success) return;
-
-      game.state = service.getState();
-      game.history.push({
-        playerId: move.playerId,
-        payload: move.payload,
-      });
-
-      io.to(room.id).emit("game_updated", game);
-
-      // Проверяем, завершилась ли игра
-      const gameState = game.state as CheckersState;
-
-      if (gameState.completed) {
-        game.status = "finished";
-        io.to(room.id).emit("game_finished", {
-          gameId: game.id,
-          winner: gameState.winner,
-        });
-      }
+      applyCheckersMove(io, room, game, move);
     },
   );
 

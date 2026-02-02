@@ -27,6 +27,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
+  vsAI:boolean;
   history: Move<TMovePayload>[]; // история ходов
   state?: TState; // текущее состояние игры (например CheckersState)
 }
@@ -38,6 +39,7 @@ export interface Room {
   players: Player[];
   createdAt: number;
   games: Game[];
+  creator: Player;
 }
 
 // ----------------- Шашки -----------------

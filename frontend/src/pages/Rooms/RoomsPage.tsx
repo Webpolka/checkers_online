@@ -15,10 +15,12 @@ export const RoomsPage = () => {
     connect,
     initPlayer,
     createRoom,
-    joinGame,
     joinRoom,
     leaveRoom,
+    updateRoom,
+
     createGame,
+    joinGame,
     deleteGame,
   } = useRoomsStore();
 
@@ -27,13 +29,12 @@ export const RoomsPage = () => {
   useEffect(() => {
     initPlayer();
     connect();
-    // через небольшую задержку ставим флаг загрузки
     const timer = setTimeout(() => setIsLoaded(true), 400);
     return () => clearTimeout(timer);
   }, []);
 
   const handleCreateRoom = () => {
-    createRoom(Date.now().toString());
+    createRoom(Date.now().toString()); // всегда PvP
   };
 
   const handleJoinGame = (gameId: string) => {
@@ -43,20 +44,25 @@ export const RoomsPage = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Sticky Header */}
+      {/* Header */}
       <Header
         title="Игровые комнаты"
-        rightContent={rooms.length > 0 && (
-          <AppButton variant="accent" onClick={handleCreateRoom} className="w-full sm:w-[initial]">
-            Создать комнату
-          </AppButton>
-        )}
+        rightContent={
+          rooms.length > 0 && (
+            <AppButton
+              variant="accent"
+              onClick={handleCreateRoom}
+              className="w-full sm:w-[initial]"
+            >
+              Создать комнату
+            </AppButton>
+          )
+        }
       />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto bg-gray-50 px-3 sm:px-6 pt-6 pb-5 relative">
         {!isLoaded ? (
-          // PageLoader по центру экрана
           <div className="absolute inset-0 flex items-center justify-center">
             <PageLoader />
           </div>
@@ -67,15 +73,16 @@ export const RoomsPage = () => {
         ) : (
           <div className="max-w-5xl mx-auto grid gap-4 pb-20">
             {rooms.map((room) => (
-              <RoomCard
+              <RoomCard               
                 key={room.id}
                 room={room}
                 currentPlayer={player}
                 onJoinRoom={() => joinRoom(room.id)}
                 onLeaveRoom={() => leaveRoom(room.id)}
-                onCreateGame={() => createGame(room.id)}
+                onCreateGame={(vsAI) => createGame(room.id, vsAI)} // true по умолчанию
                 onJoinGame={handleJoinGame}
                 onDeleteGame={deleteGame}
+                onVsAIChange={(vsAI) => updateRoom(room.id, vsAI)} // обновление комнаты на AI
               />
             ))}
           </div>

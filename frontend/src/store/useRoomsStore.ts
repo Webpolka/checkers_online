@@ -25,7 +25,9 @@ interface RoomsState {
   createRoom: (name: string) => void;
   joinRoom: (roomId: string) => void;
   leaveRoom: (roomId: string) => void;
-  createGame: (roomId: string) => void;
+  updateRoom: (roomId: string, vsAI: boolean) => void;
+
+  createGame: (roomId: string, vsAI: boolean) => void;
   joinGame: (gameId: string) => void;
   deleteGame: (gameId: string) => void;
   leaveGame: (gameId: string) => void;
@@ -157,11 +159,27 @@ export const useRoomsStore = create<RoomsState>()(
         socket.emit("leave_room", player, roomId);
       },
 
-      /* ---------------- games ---------------- */
-      createGame: (roomId: string, type: string = GAME_TYPE) => {
+      updateRoom: (roomId: string, vsAI: boolean) => {
         const { socket, player } = get();
         if (!socket || !player) return;
-        socket.emit("create_game", { roomId, type, creator: player });
+
+        // Отправляем на сервер: кто, в какой комнате, режим
+        socket.emit("update_room", {
+          playerId: player.id,
+          roomId,
+          vsAI,
+        });
+      },
+
+      /* ---------------- games ---------------- */
+      createGame: (
+        roomId: string,
+        vsAI: boolean = true,
+        type: string = GAME_TYPE,
+      ) => {
+        const { socket, player } = get();
+        if (!socket || !player) return;
+        socket.emit("create_game", { roomId, type, creator: player, vsAI });
       },
 
       joinGame: (gameId: string) => {

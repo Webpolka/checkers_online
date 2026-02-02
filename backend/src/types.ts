@@ -2,8 +2,8 @@ export type ServerPlayer = Player & {
   socketId: string;
   connected: boolean;
   lastSeen: number;
+  isAI?: boolean;
 };
-
 
 export type ServerRoom = Omit<Room, "players"> & {
   players: ServerPlayer[];
@@ -16,8 +16,8 @@ export interface Room {
   players: Player[];
   createdAt: number;
   games: Game[];
+  creator: Player;
 }
-
 
 // ----------------- Общие типы -----------------
 
@@ -48,6 +48,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
+  vsAI: boolean;
   history: Move<TMovePayload>[]; // история ходов
   state?: TState; // текущее состояние игры (например CheckersState)
 }
@@ -74,8 +75,8 @@ export interface CheckersMove {
 export interface CheckersState {
   board: Board;
   currentPlayer: "w" | "b";
-  selected?: Position | null;        // выбранная шашка
-  availableMoves?: Position[];       // массив клеток, куда можно походить
+  selected?: Position | null; // выбранная шашка
+  availableMoves?: Position[]; // массив клеток, куда можно походить
   mandatoryPieces?: Position[];
   movesCount: number;
   completed: boolean;

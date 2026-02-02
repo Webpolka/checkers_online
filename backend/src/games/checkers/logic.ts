@@ -130,3 +130,4 @@ export function getJumpsFromPosition(board: Board, player: Cell, from: Position)
     (m) => m.from.row === from.row && m.from.col === from.col
   );
 }
+

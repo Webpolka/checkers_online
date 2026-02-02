@@ -12,7 +12,6 @@ import type {
 } from "../types/rooms.types";
 
 const GAME_TYPE = "checkers";
-// const SERVER_URL = "http://localhost:3000";
 
 interface RoomsState {
   socket: Socket | null;

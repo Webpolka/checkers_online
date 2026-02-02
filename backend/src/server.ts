@@ -18,7 +18,7 @@ import { ServerPlayer } from "./types.js";
 
 const app = express();
 const httpServer = createServer(app);
-const FRONT_URL = "http://localhost:5173";
+const FRONT_URL = ["https://checkers.wtemu.ru", "http://localhost:5173"];
 
 const io = new Server(httpServer, {
   cors: { origin: FRONT_URL, methods: ["GET", "POST", "DELETE"] },

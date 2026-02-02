@@ -24,30 +24,48 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
 
   // ------------------ Победитель ------------------
   let winnerPlayer: Player | null = null;
+  let winnerLabel: string | null = null;
+
   if (game.status === "finished" && game.state) {
     const state = game.state as CheckersState;
+
     if (state.winner) {
-      winnerPlayer = state.winner === "w" ? game.players[0] : game.players[1] || null;
+      winnerLabel = state.winner === "w" ? "Белые" : "Чёрные";
+
+      winnerPlayer =
+        game.players.find((_, idx) =>
+          (state.winner === "w" && idx === 0) ||
+          (state.winner === "b" && idx === 1)
+        ) ?? null;
     }
   }
 
   return (
     <div className="bg-green-100 rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row p-4 gap-4 sm:gap-6">
-      
-      {/* --------- Левая часть: Игра + аватарки / победитель --------- */}
+      {/* --------- Левая часть --------- */}
       <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <div className="font-semibold text-lg sm:text-xl">Игра #{game.id?.slice(0, 6)}</div>
+          <div className="font-semibold text-lg sm:text-xl">
+            Игра #{game.id?.slice(0, 6)}
+          </div>
 
-          {/* Если игра завершена, показываем победителя */}
-          {game.status === "finished" && winnerPlayer ? (
+          {/* Победитель / игроки */}
+          {game.status === "finished" ? (
             <div className="flex items-center gap-1 ml-2">
-              <span className="text-yellow-500">🏆 Победил:</span>
-              <PlayerAvatar player={winnerPlayer} size="sm" />
-              <span className="text-gray-700 text-sm">{winnerPlayer.first_name}</span>
+              <span className="text-yellow-500">🏆 Победили:</span>
+
+              {winnerPlayer ? (
+                <>
+                  <PlayerAvatar player={winnerPlayer} size="sm" />
+                  <span className="text-gray-700 text-sm">
+                    {winnerPlayer.first_name}
+                  </span>
+                </>
+              ) : (
+                <span className="text-gray-700 text-sm">{winnerLabel}</span>
+              )}
             </div>
           ) : (
-            // Иначе обычные аватарки игроков
             <div className="flex items-center gap-2">
               {game.players.map((p, idx) => (
                 <div key={p.id} className="flex items-center gap-1">

@@ -5,6 +5,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { ServerRoom } from "./types.js";
+import { generateId } from "./utils/generate.js";
 import {
   Player,
   Room,
@@ -52,8 +53,13 @@ const removePlayerFromRoom = (playerId: string, roomId?: string) => {
     if (!room) return;
 
     room.players = room.players.filter((p) => p.id !== playerId);
+
     room.games.forEach((g) => {
+      // Если игра закончена — пропускаем
+      if (g.status === "finished") return;
+      // Удаляем игрока из игры
       g.players = g.players.filter((p) => p.id !== playerId);
+      // Если игроков стало меньше 2 — ждём второго игрока
       if (g.players.length < 2) g.status = "waiting";
     });
   } else {
@@ -61,6 +67,7 @@ const removePlayerFromRoom = (playerId: string, roomId?: string) => {
       (r) => (r.players = r.players.filter((p) => p.id !== playerId)),
     );
   }
+  // Удаляем комнаты без игроков
   rooms = rooms.filter((r) => r.players.length > 0);
 };
 
@@ -94,10 +101,14 @@ setInterval(() => {
     });
 
     // очищаем игроков из игр
-    room.games.forEach((game) => {
+    room.games.forEach((game) => {     
+
       game.players = game.players.filter((p) =>
         room.players.some((rp) => rp.id === p.id),
       );
+
+       if (game.status === "finished") return;
+
       // если игроков стало меньше 2 — игра снова waiting
       if (game.players.length < 2) game.status = "waiting";
     });
@@ -155,7 +166,7 @@ io.on("connection", (socket) => {
     };
 
     const room: ServerRoom = {
-      id: Date.now().toString(),
+      id: generateId(6),
       name,
       players: [serverPlayer],
       games: [],
@@ -201,7 +212,7 @@ io.on("connection", (socket) => {
       if (!room) return;
 
       const game: Game = {
-        id: Date.now().toString(),
+        id: generateId(6),
         roomId: room.id,
         type: data.type,
         players: [],
@@ -227,7 +238,10 @@ io.on("connection", (socket) => {
     }
 
     socket.join(room.id);
-    game.status = game.players.length === 2 ? "started" : "waiting";
+    if (game.status !== "finished") {
+      game.status = game.players.length === 2 ? "started" : "waiting";
+    }
+
     broadcastRoomsUpdate();
   });
 

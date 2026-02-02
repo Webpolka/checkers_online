@@ -38,7 +38,7 @@ export const RoomCard = ({
         {/* Левый блок: текст + аватарки под текстом */}
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-base md:text-lg">
-            Комната №{room.name}
+            Комната №{room.id}
           </h3>
           <p className="text-sm text-gray-600">
             Статус:&nbsp;

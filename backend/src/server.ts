@@ -141,39 +141,38 @@ io.on("connection", (socket) => {
   console.log("New websocket:", socket.id);
 
   // ------------------ REGISTER PLAYER ------------------
- socket.on("register_player", (player: Player) => {
-  const now = Date.now();
-  const serverPlayer: ServerPlayer = {
-    ...player,
-    socketId: socket.id,
-    connected: true,
-    lastSeen: now,
-  };
+  socket.on("register_player", (player: Player) => {
+    const now = Date.now();
+    const serverPlayer: ServerPlayer = {
+      ...player,
+      socketId: socket.id,
+      connected: true,
+      lastSeen: now,
+    };
 
-  (socket as any).playerId = player.id;
+    (socket as any).playerId = player.id;
 
-  // ----------------- обновляем комнаты -----------------
-  rooms.forEach((room) => {
-    room.players = room.players.map((p) =>
-      p.id === player.id ? serverPlayer : p,
-    );
+    // ----------------- обновляем комнаты -----------------
+    rooms.forEach((room) => {
+      room.players = room.players.map((p) =>
+        p.id === player.id ? serverPlayer : p,
+      );
 
-    // ----------------- присоединяем socket к комнатам -----------------
-    if (room.players.some(p => p.id === player.id)) {
-      socket.join(room.id);
+      // ----------------- присоединяем socket к комнатам -----------------
+      if (room.players.some((p) => p.id === player.id)) {
+        socket.join(room.id);
 
-      // ----------------- отправляем актуальное состояние игр игроку -----------------
-      room.games.forEach(game => {
-        if (game.players.some(gp => gp.id === player.id)) {
-          socket.emit("game_updated", game);
-        }
-      });
-    }
+        // ----------------- отправляем актуальное состояние игр игроку -----------------
+        room.games.forEach((game) => {
+          if (game.players.some((gp) => gp.id === player.id)) {
+            socket.emit("game_updated", game);
+          }
+        });
+      }
+    });
+    // ----------------- обновляем список комнат -----------------
+    socket.emit("rooms_updated", getVisibleRoomsForPlayer(player.id));
   });
-  // ----------------- обновляем список комнат -----------------
-  socket.emit("rooms_updated", getVisibleRoomsForPlayer(player.id));
-});
-
 
   // ------------------ ROOMS ------------------
   socket.on("get_room", (roomId: string, callback) => {
@@ -315,7 +314,6 @@ io.on("connection", (socket) => {
       broadcastRoomsUpdate();
     },
   );
- 
   socket.on("join_game", (data: { gameId: string; player: Player }) => {
     const room = rooms.find((r) => r.games.some((g) => g.id === data.gameId));
     if (!room) return;
@@ -323,8 +321,23 @@ io.on("connection", (socket) => {
     if (!game) return;
 
     const serverPlayer = room.players.find((p) => p.id === data.player.id);
-    if (serverPlayer && !game.players.some((p) => p.id === serverPlayer.id)) {
-      game.players.push(serverPlayer);
+    if (!serverPlayer) return;
+
+    // --- Новая логика для игры против AI ---
+    if (game.vsAI) {
+      // Проверяем, что игрок ещё не в массиве
+      if (!game.players.some((p) => p.id === serverPlayer.id)) {
+        // Вставляем человека в начало массива, AI остаётся последним
+        game.players = [
+          serverPlayer,
+          ...game.players.filter((p) => p.id.startsWith("ai_")),
+        ];
+      }
+    } else {
+      // Для обычной игры с человеком — стандартная логика
+      if (!game.players.some((p) => p.id === serverPlayer.id)) {
+        game.players.push(serverPlayer);
+      }
     }
 
     socket.join(room.id);

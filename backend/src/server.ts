@@ -141,27 +141,39 @@ io.on("connection", (socket) => {
   console.log("New websocket:", socket.id);
 
   // ------------------ REGISTER PLAYER ------------------
-  socket.on("register_player", (player: Player) => {
-    const now = Date.now();
-    const serverPlayer: ServerPlayer = {
-      ...player,
-      socketId: socket.id,
-      connected: true,
-      lastSeen: now,
-    };
+ socket.on("register_player", (player: Player) => {
+  const now = Date.now();
+  const serverPlayer: ServerPlayer = {
+    ...player,
+    socketId: socket.id,
+    connected: true,
+    lastSeen: now,
+  };
 
-    (socket as any).playerId = player.id;
+  (socket as any).playerId = player.id;
 
-    // если игрок уже есть в комнате — обновляем данные
-    rooms.forEach((room) => {
-      room.players = room.players.map((p) =>
-        p.id === player.id ? serverPlayer : p,
-      );
-    });
+  // ----------------- обновляем комнаты -----------------
+  rooms.forEach((room) => {
+    room.players = room.players.map((p) =>
+      p.id === player.id ? serverPlayer : p,
+    );
 
-    // если игрок новый — добавим его в комнаты позже при join_room
-    socket.emit("rooms_updated", getVisibleRoomsForPlayer(player.id));
+    // ----------------- присоединяем socket к комнатам -----------------
+    if (room.players.some(p => p.id === player.id)) {
+      socket.join(room.id);
+
+      // ----------------- отправляем актуальное состояние игр игроку -----------------
+      room.games.forEach(game => {
+        if (game.players.some(gp => gp.id === player.id)) {
+          socket.emit("game_updated", game);
+        }
+      });
+    }
   });
+  // ----------------- обновляем список комнат -----------------
+  socket.emit("rooms_updated", getVisibleRoomsForPlayer(player.id));
+});
+
 
   // ------------------ ROOMS ------------------
   socket.on("get_room", (roomId: string, callback) => {
@@ -303,7 +315,7 @@ io.on("connection", (socket) => {
       broadcastRoomsUpdate();
     },
   );
-
+ 
   socket.on("join_game", (data: { gameId: string; player: Player }) => {
     const room = rooms.find((r) => r.games.some((g) => g.id === data.gameId));
     if (!room) return;

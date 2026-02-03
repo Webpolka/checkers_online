@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-// import { useEffect, useRef } from "react";
+import { useEffect} from "react";
 import { useSound } from "@/hooks/useSound";
 
 import { useRoomsStore } from "@/store/useRoomsStore";
@@ -11,8 +11,13 @@ import Modal from "@/components/modal"; // импортируем модалку
 export function GamePage() {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId: string }>();
-  const { rooms, player, leaveGame, selectPiece, makeMove } =
+  const { socket, connect, initPlayer, rooms, player, leaveGame, selectPiece, makeMove } =
     useRoomsStore();
+
+  useEffect(() => {
+    initPlayer();
+    if (!socket) connect();   
+  }, [socket]);
 
   // Находим игру
   const game: Game | undefined = rooms

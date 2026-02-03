@@ -27,7 +27,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
-  vsAI:boolean;
+  vsAI:boolean; 
   history: Move<TMovePayload>[]; // история ходов
   state?: TState; // текущее состояние игры (например CheckersState)
 }

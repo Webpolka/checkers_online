@@ -5,7 +5,14 @@ import type { Board, Cell, CheckersMove, Position } from "../../types.js";
  * Проверяем, можно ли совершить удар с позиции from -> to
  * Возвращает позицию, куда можно прыгнуть, или null
  */
-function canJump(board: Board, fromRow: number, fromCol: number, player: Cell, dr: number, dc: number): Position | null {
+function canJump(
+  board: Board,
+  fromRow: number,
+  fromCol: number,
+  player: Cell,
+  dr: number,
+  dc: number,
+): Position | null {
   const midRow = fromRow + dr;
   const midCol = fromCol + dc;
   const destRow = fromRow + 2 * dr;
@@ -24,37 +31,58 @@ function canJump(board: Board, fromRow: number, fromCol: number, player: Cell, d
   return null;
 }
 
-/**
- * Получаем все обязательные удары для игрока на всей доске
- */
-export function getMandatoryJumps(board: Board, player: Cell): CheckersMove[] {
-  const moves: CheckersMove[] = [];
+function getAllPlayerPieces(board: Board, player: Cell): Position[] {
+  const res: Position[] = [];
 
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
-      if (board[r][c] !== player) continue;
+      if (board[r][c] === player) {
+        res.push({ row: r, col: c });
+      }
+    }
+  }
 
-      // Проверяем все четыре диагонали
-      const directions: [number, number][] = [
-        [-1, -1], [-1, 1],
-        [1, -1], [1, 1],
-      ];
+  return res;
+}
 
-      directions.forEach(([dr, dc]) => {
-        const dest = canJump(board, r, c, player, dr, dc);
-        if (dest) {
-          moves.push({
-            from: { row: r, col: c },
-            to: dest,
-            jumped: [{ row: r + dr, col: c + dc }],
-          });
-        }
-      });
+/**
+ * Получаем все обязательные удары для игрока на всей доске
+ */
+export function getMandatoryJumps(
+  board: Board,
+  player: Cell,
+  forcedPiece?: Position | null,
+): CheckersMove[] {
+  const moves: CheckersMove[] = [];
+
+  // Если есть forcedPiece — проверяем только эту шашку
+  const pieces = forcedPiece ? [forcedPiece] : getAllPlayerPieces(board, player);
+
+  for (const { row: r, col: c } of pieces) {
+    if (board[r][c] !== player) continue;
+
+    const directions: [number, number][] = [
+      [-1, -1],
+      [-1, 1],
+      [1, -1],
+      [1, 1],
+    ];
+
+    for (const [dr, dc] of directions) {
+      const dest = canJump(board, r, c, player, dr, dc);
+      if (dest) {
+        moves.push({
+          from: { row: r, col: c },
+          to: dest,
+          jumped: [{ row: r + dr, col: c + dc }],
+        });
+      }
     }
   }
 
   return moves;
 }
+
 
 /**
  * Получаем все возможные обычные ходы (только если нет обязательных ударов)
@@ -70,7 +98,10 @@ export function getPossibleMoves(board: Board, player: Cell): CheckersMove[] {
     for (let c = 0; c < 8; c++) {
       if (board[r][c] !== player) continue;
 
-      const directions: [number, number][] = [[dir, -1], [dir, 1]]; // обычный ход только вперед
+      const directions: [number, number][] = [
+        [dir, -1],
+        [dir, 1],
+      ]; // обычный ход только вперед
       directions.forEach(([dr, dc]) => {
         const nr = r + dr;
         const nc = c + dc;
@@ -87,8 +118,6 @@ export function getPossibleMoves(board: Board, player: Cell): CheckersMove[] {
   return moves;
 }
 
-
-
 /**
  * Находим шашки для подсветки обязханные бить
  */
@@ -104,20 +133,23 @@ export function getMandatoryPieces(board: Board, player: Cell): Position[] {
   return Array.from(map.values());
 }
 
-
 /**
  * Для выбранной шашки: возвращает массив доступных клеток (удары или обычные ходы)
  */
-export function getAvailableMovesForPiece(board: Board, player: Cell, from: Position): Position[] {
+export function getAvailableMovesForPiece(
+  board: Board,
+  player: Cell,
+  from: Position,
+): Position[] {
   // Сначала проверяем обязательные удары для этой шашки
   const mandatory = getMandatoryJumps(board, player).filter(
-    (m) => m.from.row === from.row && m.from.col === from.col
+    (m) => m.from.row === from.row && m.from.col === from.col,
   );
   if (mandatory.length > 0) return mandatory.map((m) => m.to);
 
   // Если ударов нет, проверяем обычные ходы
   const possible = getPossibleMoves(board, player).filter(
-    (m) => m.from.row === from.row && m.from.col === from.col
+    (m) => m.from.row === from.row && m.from.col === from.col,
   );
   return possible.map((m) => m.to);
 }
@@ -125,9 +157,12 @@ export function getAvailableMovesForPiece(board: Board, player: Cell, from: Posi
 /**
  * Проверка, есть ли еще серии ударов для шашки
  */
-export function getJumpsFromPosition(board: Board, player: Cell, from: Position): CheckersMove[] {
-  return getMandatoryJumps(board, player).filter(
-    (m) => m.from.row === from.row && m.from.col === from.col
-  );
+export function getJumpsFromPosition(
+  board: Board,
+  player: Cell,
+  from: Position,
+): CheckersMove[] {
+  // Передаем forcedPiece — чтобы серия была только для этой шашки
+  return getMandatoryJumps(board, player, from);
 }
 

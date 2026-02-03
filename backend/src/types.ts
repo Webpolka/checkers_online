@@ -48,7 +48,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
-  vsAI: boolean;
+  vsAI: boolean;  
   history: Move<TMovePayload>[]; // история ходов
   state?: TState; // текущее состояние игры (например CheckersState)
 }
@@ -77,7 +77,8 @@ export interface CheckersState {
   currentPlayer: "w" | "b";
   selected?: Position | null; // выбранная шашка
   availableMoves?: Position[]; // массив клеток, куда можно походить
-  mandatoryPieces?: Position[];
+  mandatoryPieces?: Position[];  
+  forcedPiece?: Position | null;
   movesCount: number;
   completed: boolean;
   winner?: "w" | "b";

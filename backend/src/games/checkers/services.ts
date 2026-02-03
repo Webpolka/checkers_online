@@ -10,7 +10,7 @@ import {
   getMandatoryJumps,
   getPossibleMoves,
   getJumpsFromPosition,
-  getMandatoryPieces
+  getMandatoryPieces,
 } from "./logic.js";
 
 export class CheckersService {
@@ -23,7 +23,7 @@ export class CheckersService {
       board: initialState.board.map((row) => [...row]),
     };
 
-     this.updateMandatoryPieces();
+    this.updateMandatoryPieces();
   }
 
   /**
@@ -37,9 +37,8 @@ export class CheckersService {
 
     const playerColor: "w" | "b" = currentPlayer;
 
-    
     const mandatoryPieces = getMandatoryPieces(board, playerColor);
-this.state.mandatoryPieces = mandatoryPieces;
+    this.state.mandatoryPieces = mandatoryPieces;
 
     // ----------------------
     // Проверка валидности хода
@@ -97,13 +96,15 @@ this.state.mandatoryPieces = mandatoryPieces;
         // Серия ударов продолжается — игрок остаётся
         this.state.selected = to;
         this.state.availableMoves = nextJumps.map((m) => m.to);
-         this.state.mandatoryPieces = [to]; //  ТОЛЬКО ЭТА ШАШКА
+        this.state.mandatoryPieces = [to]; //  ТОЛЬКО ЭТА ШАШКА
+        this.state.forcedPiece = to; // ВАЖНО
       } else {
         // Удар был, но больше нет серии — передаем очередь сопернику
         this.state.currentPlayer = currentPlayer === "w" ? "b" : "w";
         this.state.selected = null;
         this.state.availableMoves = undefined;
         this.state.mandatoryPieces = undefined;
+        this.state.forcedPiece = null;
       }
     } else {
       // Обычный ход — очередь сразу переходит сопернику
@@ -127,15 +128,20 @@ this.state.mandatoryPieces = mandatoryPieces;
 
     const mandatoryPieces = getMandatoryPieces(this.state.board, playerColor);
 
-  // если есть обязательные шашки — нельзя выбрать другую
-  if (
-    mandatoryPieces.length > 0 &&
-    !mandatoryPieces.some(
-      (p) => p.row === pos.row && p.col === pos.col
-    )
-  ) {
-    return { ...this.state, mandatoryPieces };
-  }
+    // Если forcedPiece активен — можно выбрать только его
+    if (this.state.forcedPiece) {
+      if (
+        pos.row !== this.state.forcedPiece.row ||
+        pos.col !== this.state.forcedPiece.col
+      ) {
+        return this.state; // недопустимый выбор
+      }
+    } else if (
+      mandatoryPieces.length > 0 &&
+      !mandatoryPieces.some((p) => p.row === pos.row && p.col === pos.col)
+    ) {
+      return this.state; // нельзя выбрать другую шашку
+    }
 
     const availableMoves = getAvailableMovesForPiece(
       this.state.board,
@@ -147,7 +153,6 @@ this.state.mandatoryPieces = mandatoryPieces;
     this.state.availableMoves = availableMoves;
     this.updateMandatoryPieces();
 
-
     return { ...this.state };
   }
 
@@ -155,12 +160,16 @@ this.state.mandatoryPieces = mandatoryPieces;
    * обновляем обязательный к удару
    */
   private updateMandatoryPieces() {
-  this.state.mandatoryPieces = getMandatoryJumps(
-    this.state.board,
-    this.state.currentPlayer,
-  ).map((m) => m.from);
-}
-
+    // Если forcedPiece есть — показываем только его
+    if (this.state.forcedPiece) {
+      this.state.mandatoryPieces = [this.state.forcedPiece];
+    } else {
+      this.state.mandatoryPieces = getMandatoryJumps(
+        this.state.board,
+        this.state.currentPlayer,
+      ).map((m) => m.from);
+    }
+  }
 
   /**
    * Проверка победителя

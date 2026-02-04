@@ -1,12 +1,6 @@
-export type ServerPlayer = Player & {
-  socketId: string;
-  connected: boolean;
-  lastSeen: number;
-  isAI?: boolean;
-};
-
 export type ServerRoom = Omit<Room, "players"> & {
-  players: ServerPlayer[];
+  players: Player[];
+  mode: GameMode;
 };
 
 // Комната
@@ -16,6 +10,7 @@ export interface Room {
   players: Player[];
   createdAt: number;
   games: Game[];
+  mode: GameMode;
   creator: Player;
 }
 
@@ -28,8 +23,13 @@ export type Player = {
   last_name?: string;
   username?: string;
   photo_url?: string;
+
+  // Опциональные серверные поля
+  socketId?: string;
   connected?: boolean;
   lastSeen?: number;
+  isAI?: boolean;
+  hidden?: boolean;
 };
 
 // ----------------- Универсальная игра -----------------
@@ -41,16 +41,19 @@ export interface Move<TPayload = unknown> {
 }
 
 // Универсальная игра
+export type GameMode = "pvp" | "pve" | "eve";
+
 export interface Game<TState = unknown, TMovePayload = unknown> {
   id: string;
   roomId: string;
-  type: string; // название игры ("checkers", "cards", ...)
+  type: string;
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
-  vsAI: boolean;  
-  history: Move<TMovePayload>[]; // история ходов
-  state?: TState; // текущее состояние игры (например CheckersState)
+  pausedByCreator?:boolean;
+  mode: GameMode;
+  history: Move<TMovePayload>[];
+  state?: TState;
 }
 
 // ----------------- Шашки -----------------
@@ -77,7 +80,7 @@ export interface CheckersState {
   currentPlayer: "w" | "b";
   selected?: Position | null; // выбранная шашка
   availableMoves?: Position[]; // массив клеток, куда можно походить
-  mandatoryPieces?: Position[];  
+  mandatoryPieces?: Position[];
   forcedPiece?: Position | null;
   movesCount: number;
   completed: boolean;

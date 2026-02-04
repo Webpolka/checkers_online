@@ -3,18 +3,18 @@ import type { Room, Player } from "@/types/rooms.types";
 import { PlayerAvatar } from "./PlayerAvatar";
 import { GameCard } from "./GameCard";
 import { AppButton } from "@/components/ui/appButton";
-import { ModeSelect } from "@/components/ui/modeSelect";
+import { GAME_MODE_LABELS } from "@/constants/gameModes";
 
 type Props = {
   room: Room;
   currentPlayer: Player | null;
   onJoinRoom: () => void;
   onLeaveRoom: () => void;
-  onCreateGame: (vsAI: boolean) => void;
+  onCreateGame: () => void;
   onJoinGame: (gameId: string) => void;
   onDeleteGame: (gameId: string) => void;
-  onVsAIChange: (vsAI: boolean) => void;
 };
+
 
 export const RoomCard = ({
   room,
@@ -24,44 +24,56 @@ export const RoomCard = ({
   onCreateGame,
   onJoinGame,
   onDeleteGame,
-  onVsAIChange,
+
 }: Props) => {
-  const isPlayerInRoom = room.players.some((p) => p.id === currentPlayer?.id);
-  const isPlayerInGame = room.games.some((g) =>
-    g.players.some((p) => p.id === currentPlayer?.id)
-  );
 
-  const isFull = room.players.length === 2;
-  const isCreator = room.creator.id === currentPlayer?.id;
+  const isCreator = currentPlayer?.id === room.creator.id;
+  const isPlayerInRoom = room.players.some(p => p.id === currentPlayer?.id);
 
-  const roomMode: "ai" | "pvp" =
-    room.players.some(p => typeof p.id === "string" && p.id.startsWith("ai_"))
-      ? "ai"
-      : "pvp";
+  const canJoinRoom =
+    room.mode === "pvp"
+      ? room.players.length < 2
+      : room.mode === "pve"
+        ? room.players.length < 1
+        : false; // eve — зрители, входа нет
 
-  const roomVsAI = roomMode === "ai";
+  const humanPlayers = room.players.filter(p => !p.isAI);
+  const aiPlayers = room.players.filter(p => p.isAI);
+
+  const canCreateGame =
+    isCreator && (
+      (room.mode === "pvp" && humanPlayers.length === 2) || // два человека
+      (room.mode === "pve" && humanPlayers.length === 1 && aiPlayers.length === 1) || // один человек + один бот
+      (room.mode === "eve" && aiPlayers.length === 2) // два бота
+    );
+
+  const getRoomPlayersForCard = (room: Room): Player[] => {
+    // Копируем массив, чтобы не мутировать оригинал
+    let players = [...room.players];
+
+    // Если режим EVE, убираем создателя из отображаемого списка
+    if (room.mode === "eve") {
+      players = players.filter(p => p.id !== room.creator.id);
+    }    
+
+    return players;
+  };
 
 
   return (
     <div className="bg-white rounded-xl p-4 shadow transition hover:shadow-lg">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4 gap-3">
-        <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-base md:text-lg">
-            Комната №{room.id}
-          </h3>
+      <div className="flex flex-col md:flex-row md:justify-between gap-3 mb-4">
+        <div>
+          <h3 className="font-bold text-lg">Комната {room.name ? room.name : room.id}</h3>
           <p className="text-sm text-gray-600">
-            Статус:&nbsp;
-            <span className={isFull ? "text-green-600" : "text-red-500"}>
-              {isFull ? "активна" : "ожидание второго игрока"}
-            </span>
+            Режим: <b>{GAME_MODE_LABELS[room.mode]}</b>
           </p>
 
-          {/* Аватары */}
-          <div className="flex items-center gap-2 mt-1 md:mt-2">
-            {room.players.map((p, idx) => (
+          <div className="flex items-center gap-2 mt-2">
+            {getRoomPlayersForCard(room).map((p, idx) => (
               <React.Fragment key={p.id}>
-                {idx > 0 && <span className="text-gray-400 text-sm">vs</span>}
+                {idx > 0 && <span className="text-gray-400">vs</span>}
                 <PlayerAvatar player={p} />
               </React.Fragment>
             ))}
@@ -69,64 +81,35 @@ export const RoomCard = ({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col md:flex-row md:justify-end gap-2 mt-2 md:mt-0">
-          {!isPlayerInRoom && !isPlayerInGame && (
-            <AppButton
-              variant={isFull ? "secondary" : "primary"}
-              onClick={onJoinRoom}
-              disabled={isFull}
-              className="h-10 px-4 py-0 text-sm flex items-center justify-center"
-            >
+        <div className="flex flex-col md:flex-row gap-2">
+          {!isPlayerInRoom && canJoinRoom && (
+            <AppButton variant="primary" onClick={onJoinRoom}>
               Войти
             </AppButton>
           )}
 
           {isPlayerInRoom && (
-            <AppButton
-              variant="danger"
-              onClick={onLeaveRoom}
-              className="h-10 px-4 py-0 text-sm flex items-center justify-center"
-            >
+            <AppButton variant="danger" onClick={onLeaveRoom}>
               Выйти
             </AppButton>
           )}
 
-          {isPlayerInRoom && (
-            <div className="flex items-center gap-2 mt-2 md:mt-0">
-              {/* Показываем кнопку "Создать игру" только если в комнате два игрока */}
-              {isCreator && isFull && (
-                <AppButton
-                  variant="accent"
-                  onClick={() => onCreateGame(roomVsAI)}
-                  className="h-10 px-4 py-0 text-sm flex items-center justify-center"
-                >
-                  Создать игру
-                </AppButton>
-              )}
-              {/* Показываем ModeSelect только создателю комнаты */}
-              {room.creator.id === currentPlayer?.id && (
-                <ModeSelect
-                  value={roomMode}
-                  onChange={(v) => onVsAIChange(v === "ai")}
-                  className="h-10"
-                />
-              )}              
-            </div>
+          {canCreateGame && (
+            <AppButton variant="accent" onClick={onCreateGame}>
+              Создать игру
+            </AppButton>
           )}
-
-
         </div>
       </div>
 
       {/* Games */}
-      {isPlayerInRoom && room.games.length > 0 && (
+      {room.games.length > 0 && (
         <div className="space-y-2">
-          {room.games.map((game) => (
+          {room.games.map(game => (
             <GameCard
               key={game.id}
               game={game}
               currentPlayer={currentPlayer}
-              roomVsAI={roomVsAI}
               onJoin={() => onJoinGame(game.id)}
               onDelete={() => onDeleteGame(game.id)}
             />

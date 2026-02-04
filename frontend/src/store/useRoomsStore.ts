@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { io, Socket } from "socket.io-client";
+import { type GameMode } from "../types/rooms.types";
 import type {
   Player,
   Room,
@@ -22,12 +23,11 @@ interface RoomsState {
 
   connect: () => void;
   initPlayer: () => Player;
-  createRoom: (name: string) => void;
+  createRoom: (name: string, mode: GameMode) => void;
   joinRoom: (roomId: string) => void;
   leaveRoom: (roomId: string) => void;
-  updateRoom: (roomId: string, vsAI: boolean) => void;
 
-  createGame: (roomId: string, vsAI: boolean) => void;
+  createGame: (roomId: string, mode: GameMode) => void;
   joinGame: (gameId: string) => void;
   deleteGame: (gameId: string) => void;
   leaveGame: (gameId: string) => void;
@@ -76,6 +76,8 @@ export const useRoomsStore = create<RoomsState>()(
         socket.on("connect", () => {
           const player = get().player;
           if (player) socket.emit("register_player", player);
+
+          socket.emit("get_rooms");
         });
 
         // HEARTBEAT — ВОТ ТУТ
@@ -141,10 +143,11 @@ export const useRoomsStore = create<RoomsState>()(
       },
 
       /* ---------------- rooms ---------------- */
-      createRoom: (name) => {
+
+      createRoom: (name: string, mode: GameMode) => {
         const { socket, player } = get();
         if (!socket || !player) return;
-        socket.emit("create_room", player, name);
+        socket.emit("create_room", { creator: player, name, mode });
       },
 
       joinRoom: (roomId) => {
@@ -159,27 +162,20 @@ export const useRoomsStore = create<RoomsState>()(
         socket.emit("leave_room", player, roomId);
       },
 
-      updateRoom: (roomId: string, vsAI: boolean) => {
-        const { socket, player } = get();
-        if (!socket || !player) return;
-
-        // Отправляем на сервер: кто, в какой комнате, режим
-        socket.emit("update_room", {
-          playerId: player.id,
-          roomId,
-          vsAI,
-        });
-      },
-
       /* ---------------- games ---------------- */
-      createGame: (
-        roomId: string,
-        vsAI: boolean = true,
-        type: string = GAME_TYPE,
-      ) => {
-        const { socket, player } = get();
+      createGame: (roomId: string, type: string = GAME_TYPE) => {
+        const { socket, player, rooms } = get();
         if (!socket || !player) return;
-        socket.emit("create_game", { roomId, type, creator: player, vsAI });
+
+        const room = rooms.find((r) => r.id === roomId);
+        if (!room) return;
+
+        socket.emit("create_game", {
+          roomId,
+          type,
+          creator: player,
+          mode: room.mode, // <-- наследуем режим комнаты
+        });
       },
 
       joinGame: (gameId: string) => {

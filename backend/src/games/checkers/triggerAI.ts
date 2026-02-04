@@ -2,52 +2,72 @@ import type { Game } from "../../types.js";
 import type { Move, CheckersMove, CheckersState } from "../../types.js";
 import { pickAIMove } from "./ai.js";
 
-
 function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function triggerAIMoveIfNeeded(
   game: Game,
-  doMove: (move: Move<CheckersMove>) => void
+  doMove: (move: Move<CheckersMove>) => void,
 ) {
   if (!game.state || (game.state as CheckersState).completed) return;
+
+  const state = game.state as CheckersState;
+
   if (game.mode === "pvp") return;
   if (game.status === "waiting" && game.pausedByCreator) return;
 
-  if ((game as any).aiThinking) return;
-  (game as any).aiThinking = true;
-
-  const state = game.state as CheckersState;
-  const aiPlayer = game.players.find((p, idx) =>
-    p.isAI &&
-    ((state.currentPlayer === "w" && idx === 0) || (state.currentPlayer === "b" && idx === 1))
+  const aiPlayer = game.players.find(
+    (p, idx) =>
+      p.isAI &&
+      ((state.currentPlayer === "w" && idx === 0) ||
+        (state.currentPlayer === "b" && idx === 1)),
   );
-  if (!aiPlayer) {
-    (game as any).aiThinking = false;
-    return;
+
+  if (!aiPlayer) return;
+
+  // --------------------- PvE ветка ---------------------
+  if (game.mode === "pve") {
+    const payload = pickAIMove(state);
+    if (!payload) return;
+
+    setTimeout(() => {
+      doMove({ playerId: aiPlayer.id, payload });
+    }, 670);
+    return; // рекурсии нет, просто ход один раз
   }
 
-  const delayMs = game.mode === "eve" ? 600 + Math.random() * 2400 : 800;
-  await delay(delayMs);
+  // --------------------- EVE ветка ---------------------
+  if (game.mode === "eve") {
+    if ((game as any).aiThinking) return;
+    (game as any).aiThinking = true;
 
-  // после "размышления" проверяем актуальность
-  if (!game.state || (game.state as CheckersState).completed || game.status === "waiting") {
+    const delayMs = 600 + Math.random() * 1400; // 0.6–2 сек
+    await delay(delayMs);
+
+    // проверка актуальности состояния
+    if (
+      !game.state ||
+      (game.state as CheckersState).completed ||
+      game.status === "waiting"
+    ) {
+      (game as any).aiThinking = false;
+      return;
+    }
+
+    const payload = pickAIMove(state);
+    if (!payload) {
+      (game as any).aiThinking = false;
+      return;
+    }
+
+    doMove({ playerId: aiPlayer.id, payload });
+
     (game as any).aiThinking = false;
-    return;
-  }
 
-  const payload = pickAIMove(game.state as CheckersState);
-  if (!payload) {
-    (game as any).aiThinking = false;
-    return;
-  }
-
-  doMove({ playerId: aiPlayer.id, payload });
-  (game as any).aiThinking = false;
-
-  // для EVE запускаем следующий ход отложено, чтобы не стекать рекурсию
-  if (game.mode === "eve" && !(game.state as CheckersState).completed) {
-    setImmediate(() => triggerAIMoveIfNeeded(game, doMove));
+    if (!(game.state as CheckersState).completed) {
+      // рекурсивно, но через setImmediate, чтобы не стекать await
+      setImmediate(() => triggerAIMoveIfNeeded(game, doMove));
+    }
   }
 }

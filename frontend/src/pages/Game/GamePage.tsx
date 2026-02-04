@@ -6,7 +6,7 @@ import { useRoomsStore } from "@/store/useRoomsStore";
 import { GameHeader } from "@/pages/Game/GameHeader";
 import { BoardCanvas } from "@/pages/Game/BoardCanvas/BoardCanvas";
 import type { CheckersState, Position, Game } from "@/types/rooms.types";
-import Modal from "@/components/modal"; // импортируем модалку
+import Modal from "@/components/modal"; // модалка победы
 
 export function GamePage() {
   const navigate = useNavigate();
@@ -14,108 +14,70 @@ export function GamePage() {
   const { socket, connect, initPlayer, rooms, player, leaveGame, selectPiece, makeMove } =
     useRoomsStore();
 
+  const playMoveSound = useSound("/sounds/move.mp3");
+
   useEffect(() => {
     initPlayer();
     if (!socket) connect();
   }, [socket]);
 
-  // Находим игру
-  const game: Game | undefined = rooms
-    .flatMap((r) => r.games)
-    .find((g) => g.id === gameId);
+  const game: Game | undefined = rooms.flatMap(r => r.games).find(g => g.id === gameId);
+  if (!game) return <h1 className="text-3xl p-10 text-center text-red-500">Игра не найдена!</h1>;
 
-  const playMoveSound = useSound("/sounds/move.mp3");
-
-  if (!game)
-    return (
-      <h1 className="text-3xl p-10 text-center text-red-500">
-        Игра не найдена! <br />
-        Возможно игрок удалил её.
-      </h1>
-    );
-
-
-  const room = rooms.find((r) => r.id === game.roomId);
-  if (!room)
-    return (
-      <h1 className="text-3xl p-10 text-center text-red-500">
-        Комната не найдена! <br />
-        Возможно игрок удалил её.
-      </h1>
-    );
+  const room = rooms.find(r => r.id === game.roomId);
+  if (!room) return <h1 className="text-3xl p-10 text-center text-red-500">Комната не найдена!</h1>;
 
   const checkersState = game.state as CheckersState | undefined;
-  if (!checkersState)
-    return (
-      <h1 className="text-3xl p-10 text-center text-red-500">
-        Состояние игры не загружено.
-      </h1>
-    );
+  if (!checkersState) return <h1 className="text-3xl p-10 text-center text-red-500">Состояние игры не загружено.</h1>;
 
-  /* ------------------- обработка кликов ------------------- */
   const handleCellClick = (row: number, col: number) => {
     if (!player || !checkersState) return;
 
-    // Проверяем, что сейчас ходит этот игрок
-    const currentPlayerId =
-      game.players[0].id === player.id ? "w" : "b";
+    const currentPlayerId = game.players[0].id === player.id ? "w" : "b";
     if (currentPlayerId !== checkersState.currentPlayer) return;
 
     const cell = checkersState.board[row][col];
     const pos: Position = { row, col };
 
-    // Клик по своей шашке
     if (cell === checkersState.currentPlayer) {
       selectPiece(game.id, pos);
       return;
     }
 
-    // Клик по доступной клетке
     if (checkersState.availableMoves?.some(m => m.row === row && m.col === col)) {
-      if (!checkersState.selected) return; // защита
-
-      makeMove(game.id, {
-        playerId: player.id,
-        payload: {
-          from: checkersState.selected,
-          to: pos,
-        },
-      });
+      if (!checkersState.selected) return;
+      makeMove(game.id, { playerId: player.id, payload: { from: checkersState.selected, to: pos } });
       playMoveSound();
     }
   };
 
+  const handleRestart = () => navigate("/rooms");
+  const handleLeaveGame = () => { if (player) { leaveGame(game.id); navigate("/rooms"); } };
 
-  const handleRestart = () => {
-    // Можно просто перегрузить страницу или заново инициализировать игру
-    navigate(`/rooms`);
-  };
-
-
-  const handleLeaveGame = () => {
-    if (!player) return;
-    leaveGame(game.id);
-    navigate("/rooms");
-  };
-
-  // Определяем ID игрока, чей сейчас ход
   const currentTurnPlayerId = game.players.find((_p, i) => {
     if (checkersState.currentPlayer === "w") return i === 0;
     if (checkersState.currentPlayer === "b") return i === 1;
     return false;
   })?.id ?? null;
 
-
-  // определяем цвет текущего игрока
-  let playerColor: "w" | "b" = "w"; // по умолчанию белые снизу
-
+  let playerColor: "w" | "b" = "w";
   if (game.mode !== "eve" && player && game.players.length > 0) {
     playerColor = game.players[0].id === player.id ? "w" : "b";
   }
 
-
   return (
-    <div className="bg-gray-50 flex flex-col h-screen ">
+    <div className="relative  flex flex-col h-screen">
+
+      {/* ===== Фоновое изображение ===== */}
+      <img
+        src="/images/game-bg.webp"
+        alt="Фон шашек"
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+      />
+
+      {/* ===== Полупрозрачный градиент сверху ===== */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40 -z-9"></div>
+
       <GameHeader
         game={game}
         onLeaveGame={handleLeaveGame}
@@ -123,23 +85,19 @@ export function GamePage() {
         currentPlayerId={player?.id ?? null}
         currentTurnPlayerId={currentTurnPlayerId}
       />
+
       <BoardCanvas
         board={checkersState.board}
         selected={checkersState.selected ?? null}
         availableMoves={checkersState.availableMoves ?? []}
-        onCellClick={handleCellClick}
-        playerColor={playerColor} // теперь EVE всегда белые снизу
         mandatoryPieces={checkersState.mandatoryPieces ?? []}
+        onCellClick={handleCellClick}
+        playerColor={playerColor}
       />
 
-      {/* ------------------ МОДАЛКА ПОБЕДЫ ------------------ */}
       {checkersState.completed && checkersState.winner && (
-        <Modal
-          state={checkersState}
-          onRestart={handleRestart}
-        />
+        <Modal state={checkersState} onRestart={handleRestart} />
       )}
     </div>
   );
 }
-

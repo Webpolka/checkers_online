@@ -25,7 +25,7 @@ export function BoardCanvas({
   const size = board.length;
 
   const [localBoard, setLocalBoard] = useState(board);
-  useEffect(() => {setLocalBoard(board)}, [board]);
+  useEffect(() => { setLocalBoard(board) }, [board]);
 
   useEffect(() => {
     const resize = () => {
@@ -78,14 +78,15 @@ export function BoardCanvas({
   };
 
   return (
-    <div className="flex-1 w-full py-5 px-5">
-      <div ref={containerRef} className="h-full w-full flex items-center justify-center">
+    <div className="flex-1 w-full py-5 px-2">
+      <div ref={containerRef} className="h-full w-full flex items-start mt-3 sm:mt-0 sm:items-center justify-center">
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className="bg-beige rounded-lg shadow-md border-4 border-beige"
+          className="bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-100 rounded-2xl shadow-2xl border-4 border-orange-200"
           style={{ width: canvasSize, height: canvasSize }}
         />
+
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { GameHeader } from "@/pages/Game/GameHeader";
 import { BoardCanvas } from "@/pages/Game/BoardCanvas/BoardCanvas";
 import type { CheckersState, Position, Game } from "@/types/rooms.types";
 import Modal from "@/components/modal"; // модалка победы
+import { GameNotFound } from "@/components/gameNotFound";
 
 export function GamePage() {
   const navigate = useNavigate();
@@ -22,13 +23,13 @@ export function GamePage() {
   }, [socket]);
 
   const game: Game | undefined = rooms.flatMap(r => r.games).find(g => g.id === gameId);
-  if (!game) return <h1 className="text-3xl p-10 text-center text-red-500">Игра не найдена!</h1>;
+  if (!game) return <GameNotFound message="Игра не найдена!" />;
 
   const room = rooms.find(r => r.id === game.roomId);
-  if (!room) return <h1 className="text-3xl p-10 text-center text-red-500">Комната не найдена!</h1>;
+  if (!room) return <GameNotFound message="Комната не найдена!" />;
 
   const checkersState = game.state as CheckersState | undefined;
-  if (!checkersState) return <h1 className="text-3xl p-10 text-center text-red-500">Состояние игры не загружено.</h1>;
+  if (!checkersState) return <GameNotFound message="Состояние игры не загружено." />;
 
   const handleCellClick = (row: number, col: number) => {
     if (!player || !checkersState) return;

@@ -5,6 +5,7 @@ import { RoomsPage } from "./pages/Rooms/RoomsPage";
 import { GamePage } from "./pages/Game/GamePage";
 import { RulesPage } from "./pages/Rules/RulesPage";
 import { LeaderBoardPage } from "./pages/LeaderBoard/LeaderBoardPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 export const App = () => {
   return (
@@ -16,6 +17,9 @@ export const App = () => {
       <Route path="/leaderboard" element={<LeaderBoardPage />} />
       <Route path="/rooms" element={<RoomsPage />} />
       <Route path="/rooms/game/:gameId" element={<GamePage />} />
+
+      {/* Роут на все неизвестные пути */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

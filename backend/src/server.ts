@@ -343,6 +343,10 @@ io.on("connection", (socket) => {
         game.players.push(playerObj);
 
       socket.join(room.id);
+
+      if(game.players.length === 2){
+         game.status = "started";
+      } 
     }
     // EVE: просто стартуем игру, не добавляем игрока
     else if (game.mode === "eve") {

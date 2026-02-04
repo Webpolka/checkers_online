@@ -4,17 +4,55 @@ type Props = {
   player: PlayerScore;
 };
 
+const rankStyles: Record<number, string> = {
+  1: "bg-yellow-300 text-black",
+  2: "bg-orange-300 text-black",
+  3: "bg-violet-400 text-black",
+};
+
 export const LeaderCard = ({ player }: Props) => {
+  const isTop = player.rank <= 3;
+
   return (
-    <div className="flex justify-between items-center bg-white rounded-xl shadow p-4 hover:shadow-md transition">
+    <div
+      className={`
+        flex items-center justify-between
+        rounded-2xl px-5 py-4
+        backdrop-blur-md
+        bg-white/20
+        border border-white/15
+        shadow-lg shadow-black/20
+        transition-all
+        hover:bg-white/15
+      `}
+    >
       <div className="flex items-center gap-4">
-        <div className="text-xl font-bold text-gray-700">{player.rank}.</div>
+        {/* Ранг */}
+        <div
+          className={`
+            w-10 h-10 flex items-center justify-center
+            rounded-full font-extrabold
+            ${isTop ? rankStyles[player.rank] : "bg-white/40 text-white"}
+          `}
+        >
+          {player.rank}
+        </div>
+
+        {/* Имя */}
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">{player.name}</span>
-          <span className="text-sm text-gray-500">{player.username}</span>
+          <span className="font-bold text-white leading-tight">
+            {player.name}
+          </span>
+          <span className="text-sm text-white/60">
+            {player.username}
+          </span>
         </div>
       </div>
-      <div className="text-lg font-bold text-blue-600">{player.points} pts</div>
+
+      {/* Очки */}
+      <div className="text-lg font-extrabold text-green-100">
+        {player.points} pts
+      </div>
     </div>
   );
 };

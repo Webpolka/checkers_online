@@ -11,13 +11,13 @@ type Props = {
 };
 
 export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
-  const isPlayerInGame = game.players.some(p => p.id === currentPlayer?.id);
+  const isPlayerInGame = game.players.some((p) => p.id === currentPlayer?.id);
   const isCreator = currentPlayer?.id === game.creator?.id;
 
   const statusMap = {
-    waiting: { label: "Ожидание", color: "bg-yellow-100 text-yellow-700" },
-    started: { label: "В процессе", color: "bg-blue-100 text-blue-700" },
-    finished: { label: "Завершена", color: "bg-gray-200 text-gray-700" },
+    waiting: { label: "Ожидание", color: "bg-gradient-to-r from-orange-400 via-red-400 to-pink-500 text-white/90" },
+    started: { label: "В процессе", color: "bg-blue-400/40 text-blue-200" },
+    finished: { label: "Завершена", color: "bg-gray-400/30 text-gray-200" },
   };
   const status = statusMap[game.status];
 
@@ -30,8 +30,7 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
       winnerLabel = state.winner === "w" ? "Белые" : "Чёрные";
       winnerPlayer =
         game.players.find((_, idx) =>
-          (state.winner === "w" && idx === 0) ||
-          (state.winner === "b" && idx === 1)
+          (state.winner === "w" && idx === 0) || (state.winner === "b" && idx === 1)
         ) ?? null;
     }
   }
@@ -39,28 +38,27 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
   const showJoinButton = !isPlayerInGame && (game.mode === "pvp" || game.mode === "pve");
   const showPlayButton = isPlayerInGame && (game.mode === "pvp" || game.mode === "pve");
   const showStartButton = !isPlayerInGame && game.mode === "eve";
-
   const gameText = game.mode === "eve" && game.status === "waiting" && game.pausedByCreator ? "Продолжить" : "Начать";
 
   return (
-    <div className="bg-green-100 rounded-xl shadow-md hover:shadow-lg transition flex flex-col sm:flex-row p-4 gap-4 sm:gap-6">
+    <div className="bg-gradient-to-br from-purple-700 via-indigo-700 to-blue-700 rounded-2xl shadow-xl p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 transition hover:scale-[1.01] duration-200">
       {/* Левая часть */}
       <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <div className="font-semibold text-lg sm:text-xl">
-            Игра #{game.id?.slice(0, 6)}
+          <div className="font-semibold text-lg sm:text-xl text-white drop-shadow-md">
+            Игра №{game.id?.slice(0, 6)}
           </div>
 
           {game.status === "finished" ? (
-            <div className="flex items-center gap-1 ml-2">
-              <span className="text-yellow-500">🏆 Победили:</span>
+            <div className="flex items-center gap-1 ml-2 text-white/90">
+              <span className="text-yellow-300 drop-shadow-md">🏆 Победа:</span>
               {winnerPlayer ? (
                 <>
                   <PlayerAvatar player={winnerPlayer} size="sm" />
-                  <span className="text-gray-700 text-sm">{winnerPlayer.first_name}</span>
+                  <span className="text-white/80 text-sm">{winnerPlayer.first_name}</span>
                 </>
               ) : (
-                <span className="text-gray-700 text-sm">{winnerLabel}</span>
+                <span className="text-white/80 text-sm font-bold">{winnerLabel}</span>
               )}
             </div>
           ) : (
@@ -68,14 +66,14 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
               {game.players.map((p, idx) => (
                 <div key={p.id} className="flex items-center gap-1">
                   <PlayerAvatar player={p} size="sm" />
-                  {idx === 0 && game.players.length > 1 && <span className="text-gray-400 text-sm">vs</span>}
+                  {idx === 0 && game.players.length > 1 && <span className="text-white/60 text-sm">vs</span>}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-600 mt-1 sm:mt-0">
+        <div className="flex items-center gap-4 text-sm text-white/80 mt-1 sm:mt-0">
           {status && <span className={`px-2 py-1 rounded-md ${status.color}`}>{status.label}</span>}
           <span>{game.history?.length ?? 0} ходов</span>
         </div>
@@ -86,11 +84,10 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
         {game.status !== "finished" && (
           <>
             {showJoinButton && <AppButton variant="accent" onClick={onJoin}>Присоединиться</AppButton>}
-            {showPlayButton && <AppButton variant="primary" onClick={onJoin}>В игру</AppButton>}
+            {showPlayButton && <AppButton variant="secondary" onClick={onJoin}>В игру</AppButton>}
             {showStartButton && isCreator && <AppButton variant="accent" onClick={onJoin}>{gameText}</AppButton>}
           </>
         )}
-
         {isCreator && <AppButton variant="danger" onClick={onDelete}>Удалить</AppButton>}
       </div>
     </div>

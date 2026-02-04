@@ -1,8 +1,6 @@
 import { RulesCard } from "./RulesCard";
 import { Header } from "@/components/header";
 
-// Мока-данные правил
-// Мока-данные правил для русских шашек без дамок
 const RULES = [
   {
     title: "Цель игры",
@@ -17,7 +15,7 @@ const RULES = [
   {
     title: "Побивание (обязательный ход)",
     description:
-      "Если можно побить шашку соперника, ход обязательный. Можно бить несколько шашек за один ход. Побивать разрешается в любом направлении (вперёд и назад), но обычные ходы всегда только вперёд."
+      "Если можно побить шашку соперника, ход обязательный. Можно бить несколько шашек за один ход. Побивать разрешается в любом направлении, но обычные ходы всегда только вперёд."
   },
   {
     title: "Шашка в тупике",
@@ -27,29 +25,38 @@ const RULES = [
   {
     title: "Конец игры",
     description:
-      "Игра заканчивается, когда у одного игрока не остаётся шашек или нет возможных ходов. Побеждает тот игрок, который может сделать ход, даже если у него меньше шашек."
+      "Игра заканчивается, когда у одного игрока не остаётся шашек или нет возможных ходов."
   }
 ];
 
-
 export const RulesPage = () => {
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header */}      
+    <div className="relative h-screen flex flex-col">
+        {/* ===== Фоновое изображение ===== */}
+      <img
+        src="/images/rooms-bg.webp"
+        alt="Фон шашек"
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+      />
+
+      {/* ===== Полупрозрачный градиент сверху ===== */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40 -z-9"></div>
+
       <Header title="Правила игры" />
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-6 pt-6">
-        <div className="max-w-5xl mx-auto space-y-6 pb-20">
-          {/* Заголовок и описание (по центру) */}
+      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-700/10 via-purple-700/10 to-indigo-800/10 px-4 md:px-6 pt-8">
+        <div className="max-w-4xl mx-auto space-y-6 pb-24">
+          
+          {/* Заголовок */}
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2">Добро пожаловать в шашки!</h2>
-            <p className="text-lg font-semibold text-gray-700 max-w-[800px] mx-auto">
-              Здесь описаны основные правила игры. Следуйте им, чтобы быстро освоить игру и получать удовольствие.
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-3">
+              Как играть в русские шашки
+            </h2>
+            <p className="text-white/80 max-w-2xl mx-auto text-[17px] font-semibold">
+              Коротко и по делу — основные правила, чтобы ты сразу мог ворваться в игру.
             </p>
           </div>
 
-          {/* Список правил */}
           {RULES.map((rule, idx) => (
             <RulesCard
               key={idx}

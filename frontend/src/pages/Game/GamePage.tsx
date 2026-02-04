@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect} from "react";
+import { useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
 
 import { useRoomsStore } from "@/store/useRoomsStore";
@@ -16,7 +16,7 @@ export function GamePage() {
 
   useEffect(() => {
     initPlayer();
-    if (!socket) connect();   
+    if (!socket) connect();
   }, [socket]);
 
   // Находим игру
@@ -105,10 +105,13 @@ export function GamePage() {
     return false;
   })?.id ?? null;
 
+
   // определяем цвет текущего игрока
-  const playerColor = game.players.length > 0 && player
-    ? game.players[0].id === player.id ? "w" : "b"
-    : undefined;
+  let playerColor: "w" | "b" = "w"; // по умолчанию белые снизу
+
+  if (game.mode !== "eve" && player && game.players.length > 0) {
+    playerColor = game.players[0].id === player.id ? "w" : "b";
+  }
 
 
   return (
@@ -120,13 +123,12 @@ export function GamePage() {
         currentPlayerId={player?.id ?? null}
         currentTurnPlayerId={currentTurnPlayerId}
       />
-
       <BoardCanvas
         board={checkersState.board}
         selected={checkersState.selected ?? null}
         availableMoves={checkersState.availableMoves ?? []}
         onCellClick={handleCellClick}
-        playerColor={playerColor ?? "w"} // или можно вообще не рендерить, если undefined
+        playerColor={playerColor} // теперь EVE всегда белые снизу
         mandatoryPieces={checkersState.mandatoryPieces ?? []}
       />
 

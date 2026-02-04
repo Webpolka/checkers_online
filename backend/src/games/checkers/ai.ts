@@ -25,11 +25,21 @@ export function pickAIMove(state: CheckersState): CheckersMove | null {
   // Оценка каждого хода
   const scored = moves.map(m => ({ move: m, score: evaluateAIMove(m, aiPlayer) }));
 
-  // Выбираем лучший ход по максимальному score
-  const best = scored.sort((a,b) => b.score - a.score)[0];
+    // Выбираем лучший ход по максимальному score
+  // const best = scored.sort((a,b) => b.score - a.score)[0];
 
-  return best?.move.rootMove || null;
+  // Находим максимальный score
+  const maxScore = Math.max(...scored.map(s => s.score));
+
+  // Берём все ходы с этим maxScore (топовые ходы)
+  const topMoves = scored.filter(s => s.score === maxScore).map(s => s.move);
+
+  // Выбираем случайный ход из топовых
+  const selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+
+  return selectedMove?.rootMove || null;
 }
+
 
 /**
  * Генерируем все ходы AI

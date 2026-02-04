@@ -6,6 +6,7 @@ import { EmptyRoomsBanner } from "./EmptyRoomsBanner";
 import { AppButton } from "@/components/ui/appButton";
 import { Header } from "@/components/header";
 import { PageLoader } from "@/components/ui/page-loader";
+import { CreateRoomModal } from "./CreateRoomModal";
 
 export const RoomsPage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ export const RoomsPage = () => {
     createRoom,
     joinRoom,
     leaveRoom,
-    updateRoom,
 
     createGame,
     joinGame,
@@ -25,6 +25,7 @@ export const RoomsPage = () => {
   } = useRoomsStore();
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
 
   useEffect(() => {
     initPlayer();
@@ -33,9 +34,6 @@ export const RoomsPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCreateRoom = () => {
-    createRoom(Date.now().toString()); // всегда PvP
-  };
 
   const handleJoinGame = (gameId: string) => {
     joinGame(gameId);
@@ -51,7 +49,7 @@ export const RoomsPage = () => {
           rooms.length > 0 && (
             <AppButton
               variant="accent"
-              onClick={handleCreateRoom}
+              onClick={() => setShowCreateRoom(true)}
               className="w-full sm:w-[initial]"
             >
               Создать комнату
@@ -68,26 +66,37 @@ export const RoomsPage = () => {
           </div>
         ) : rooms.length === 0 ? (
           <div className="h-full">
-            <EmptyRoomsBanner onCreateRoom={handleCreateRoom} />
+            <EmptyRoomsBanner onCreateRoom={() => setShowCreateRoom(true)} />
           </div>
         ) : (
           <div className="max-w-5xl mx-auto grid gap-4 pb-20">
             {rooms.map((room) => (
-              <RoomCard               
+              <RoomCard
                 key={room.id}
                 room={room}
                 currentPlayer={player}
                 onJoinRoom={() => joinRoom(room.id)}
                 onLeaveRoom={() => leaveRoom(room.id)}
-                onCreateGame={(vsAI) => createGame(room.id, vsAI)} // true по умолчанию
+                onCreateGame={() => createGame(room.id, room.mode)}
                 onJoinGame={handleJoinGame}
                 onDeleteGame={deleteGame}
-                onVsAIChange={(vsAI) => updateRoom(room.id, vsAI)} // обновление комнаты на AI
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* Модалка выбора режима */}
+      {showCreateRoom && (
+        <CreateRoomModal
+          onClose={() => setShowCreateRoom(false)}
+          onCreate={(name, mode) => {
+            createRoom(name, mode);
+            setShowCreateRoom(false);
+          }}
+        />
+      )}
+
     </div>
   );
 };

@@ -34,7 +34,7 @@ export interface Room {
 }
 
 // Универсальная игра
-export interface Game<TState = unknown, TMovePayload = unknown> {
+export interface Game<TMovePayload = unknown> {
   id: string;
   roomId: string;
   type: string; // название игры ("checkers", "cards", ...)

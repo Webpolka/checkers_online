@@ -3,47 +3,30 @@ import { useState, useEffect, useCallback } from "react";
 export function useFullscreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // следим за состоянием
+  // Слежка за изменением fullscreen
   useEffect(() => {
-    const handler = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", handler);
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
-  // 👉 открыть fullscreen
+  // Открыть fullscreen
   const openFullscreen = useCallback(() => {
-    const elem = document.documentElement;
-
-    if (document.fullscreenElement) return;
-
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen(); // Safari
-    } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error("Не удалось войти в fullscreen:", err);
+      });
     }
   }, []);
 
-  // 👉 закрыть fullscreen
+  // Закрыть fullscreen
   const closeFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) return;
-
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => {
+        console.error("Не удалось выйти из fullscreen:", err);
+      });
     }
   }, []);
 
-  return {
-    isFullscreen,
-    openFullscreen,
-    closeFullscreen,
-  };
+  return { isFullscreen, openFullscreen, closeFullscreen };
 }

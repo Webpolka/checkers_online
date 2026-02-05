@@ -1,6 +1,5 @@
 import React from "react";
 import { useFullscreen } from "@/hooks/useFullScreen";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 
 type FullscreenExitButtonProps = {
   className?: string;
@@ -29,7 +28,10 @@ export const FullscreenExitButton: React.FC<FullscreenExitButtonProps> = ({
         ${className}
       `}
     >
-      <XMarkIcon className="w-7 h-7 md:w-12 md:h-12 text-white" /> {/* крестик тоже уменьшаем */}
+      <svg className="w-7 h-7 md:w-12 md:h-12 flex-shrink-0 text-white drop-shadow-md transition-transform duration-200">
+        <use xlinkHref={`/sprite/sprite.svg#close`} />
+      </svg>
+
     </button>
   );
 };

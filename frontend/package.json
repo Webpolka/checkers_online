@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sprites": "ts-node scripts/build-sprite.ts"
+    "sprites": "npx ts-node build-sprite.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

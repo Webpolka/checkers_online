@@ -33,7 +33,7 @@ const RULES = [
 
 export const RulesPage = () => {
   return (
-    <div className="relative w-screen h-screen flex flex-col">
+    <div className="relative h-screen flex flex-col">
       {/* ===== Фоновое изображение ===== */}
       <img
         src="/images/rooms-bg.webp"

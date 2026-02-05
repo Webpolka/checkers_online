@@ -48,7 +48,7 @@ export const RoomsPage = () => {
 
 
   return (
-    <div className="relative w-screen h-screen flex flex-col  text-white">
+    <div className="relative h-screen flex flex-col  text-white">
       {/* ===== Фоновое изображение ===== */}
       <img
         src="/images/rooms-bg.webp"
@@ -123,7 +123,9 @@ export const RoomsPage = () => {
           onClose={() => setShowCreateRoom(false)}
           onCreate={(name, mode) => {
             createRoom(name, mode);
-            setShowCreateRoom(false);
+            setTimeout(() => {
+              setShowCreateRoom(false);
+            }, 500);
           }}
         />
       )}

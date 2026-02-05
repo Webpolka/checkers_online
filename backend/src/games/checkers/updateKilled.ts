@@ -1,4 +1,4 @@
-import { CheckersState, type Game } from "../../types.js";
+import type{ CheckersState, Game } from "../../types.js";
 
 export function updateKilledPieces(game: Game) {
   const gameState = game.state as CheckersState ;

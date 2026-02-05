@@ -67,7 +67,7 @@ export function GamePage() {
   }
 
   return (
-    <div className="relative  flex flex-col h-screen">
+    <div className="relative flex flex-col h-screen pb-4">
 
       {/* ===== Фоновое изображение ===== */}
       <img

@@ -24,7 +24,7 @@ const MOCK_PLAYERS: PlayerScore[] = [
 ];
 export const LeaderBoardPage = () => {
   return (
-    <div className="relative w-screen h-screen flex flex-col">
+    <div className="relative h-screen flex flex-col">
        {/* ===== Фоновое изображение ===== */}
       <img
         src="/images/rooms-bg.webp"

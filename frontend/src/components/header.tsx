@@ -1,7 +1,6 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "@/components/ui/appButton";
-import { useFullscreen } from "@/hooks/useFullScreen";
 
 type HeaderProps = {
   title: string;
@@ -10,10 +9,8 @@ type HeaderProps = {
 
 export const Header = ({ title, rightContent }: HeaderProps) => {
   const navigate = useNavigate();
-  const { closeFullscreen } = useFullscreen();
-
-  const welcome = () => {
-    closeFullscreen();
+  
+  const welcome = () => {  
     navigate("/welcome")
   }
 

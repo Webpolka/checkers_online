@@ -33,6 +33,7 @@ export const SplashScreenPage = () => {
 
       {/* ===== Полупрозрачный градиент сверху ===== */}
       <div className="fixed inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40"></div>
+    
 
       {/* ===== Контент ===== */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 space-y-6">

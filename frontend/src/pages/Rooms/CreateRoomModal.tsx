@@ -12,7 +12,7 @@ type Props = {
 
 export const CreateRoomModal = ({ onCreate, onClose }: Props) => {
     const [name, setName] = useState("");
-    const [mode, setMode] = useState<GameMode>("pvp");
+    const [mode, setMode] = useState<GameMode>("pve");
     const [confetti, setConfetti] = useState(false);
 
     const playCreateSound = useSound("/sounds/create-room.mp3");

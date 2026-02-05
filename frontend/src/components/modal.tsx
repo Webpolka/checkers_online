@@ -23,23 +23,23 @@ const Modal: FC<ModalProps> = ({ state, onRestart }) => {
     <>
       <div
         className="fixed inset-0 flex items-center justify-center z-50 
-                   bg-black/45 backdrop-blur-[2px] p-4"
+                   bg-black/45 backdrop-blur-[2px] p-2"
       >
         <div
-          className="bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800
+          className="bg-gradient-to-br from-indigo-300 via-purple-700 to-blue-800
                      rounded-2xl shadow-2xl shadow-black/50
-                     w-full max-w-[400px] p-6 flex flex-col items-center gap-6
+                     w-full max-w-[400px] px-6 py-15 flex flex-col items-center gap-6
                      animate-fadeIn"
         >
           <h2 className="text-3xl md:text-4xl font-extrabold text-white text-center drop-shadow-lg">
-            🏆 Игра окончена!
+            <span className="text-4xl">🏆 </span> Игра окончена!
           </h2>
 
           <p className="text-2xl text-white font-bold drop-shadow-md">
             Победили: {state.winner === "w" ? "Белые" : "Чёрные"}
           </p>
 
-          <div className="flex flex-col gap-2 text-white text-lg md:text-xl font-medium text-center">
+          <div className="flex flex-col gap-2 text-white text-[24px] md:text-xl font-medium text-center">
             <p>
               Ходы: <span className="font-bold">{state.movesCount}</span>
             </p>

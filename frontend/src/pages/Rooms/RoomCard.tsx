@@ -7,6 +7,8 @@ import { AppButton } from "@/components/ui/appButton";
 import { GAME_MODE_LABELS } from "@/constants/gameModes";
 import { useSound } from "@/hooks/useSound";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 type Props = {
   room: Room;
   currentPlayer: Player | null;
@@ -66,6 +68,7 @@ export const RoomCard = ({
     if (room.mode === "eve") players = players.filter((p) => p.id !== room.creator.id);
     return players;
   };
+ 
 
   return (
     <> {confetti && (
@@ -87,7 +90,7 @@ export const RoomCard = ({
         }}
       />
     )}
-      <div className="bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 rounded-2xl p-4 shadow-2xl shadow-black/50 transition hover:scale-[1.01] duration-200">
+      <div className="bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 rounded-2xl p-4 shadow-2xl shadow-black/50 transition hover:scale-[1.01] duration-300">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between gap-3 mb-4">
           <div>
@@ -127,17 +130,27 @@ export const RoomCard = ({
         </div>
 
         {/* Games */}
-        {room.games.length > 0 && (
-          <div className="space-y-2">
-            {room.games.map((game) => (
-              <GameCard
-                key={game.id}
+        {room.games.length > 0 && (          
+          <div className="space-y-4">
+            <AnimatePresence>
+            {[...room.games].reverse().map((game) => (
+              <motion.div
+                  key={`gamecard-${game.id}`}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                >
+              <GameCard               
                 game={game}
                 currentPlayer={currentPlayer}
                 onJoin={() => onJoinGame(game.id)}
                 onDelete={() => onDeleteGame(game.id)}
               />
+              </motion.div>
             ))}
+            </AnimatePresence>
           </div>
         )}
       </div>

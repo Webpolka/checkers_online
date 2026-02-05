@@ -2,6 +2,8 @@ import React from "react";
 import type { Player, Game } from "@/types/rooms.types";
 import { AppButton } from "@/components/ui/appButton";
 import { useNavigate } from "react-router-dom";
+import { KilledPiecesRow } from "@/components/killedPieces";
+
 
 interface GameHeaderProps {
   game: Game;
@@ -44,6 +46,8 @@ export function GameHeader({
     (p) => !(game.mode === "eve" && p.hidden)
   );
 
+  const killed = game.state ? game.state.killed : { b: 0, w: 0 };
+
   // ------------------- DESKTOP -------------------
   const DesktopHeader = (
     <div className="hidden md:block bg-gradient-to-br from-blue-700/50 via-purple-700/50 to-indigo-800/50 shadow-2xl shadow-black/50 px-6">
@@ -67,6 +71,7 @@ export function GameHeader({
           <p className="text-md font-bold text-white drop-shadow-md">Игра №{game.id}</p>
           <div className={`text-lg font-extrabold drop-shadow-md ${turnInfo.color}`}>
             ХОД: {turnInfo.text}
+            <KilledPiecesRow killed={[killed.b, killed.w]} size={20} className="my-1" />
           </div>
         </div>
 
@@ -122,11 +127,11 @@ export function GameHeader({
             return (
               <React.Fragment key={p.id}>
                 <div className="flex flex-col items-center gap-1">
-                <img
-                  src={p.photo_url ?? "/images/avatar.png"}
-                  className={`w-8 h-8 rounded-full object-cover outline-4 ${borderColor}`}
-                />
-                <p className="text-xs font-semibold text-white drop-shadow-md ">{p.first_name}</p>
+                  <img
+                    src={p.photo_url ?? "/images/avatar.png"}
+                    className={`w-8 h-8 rounded-full object-cover outline-4 ${borderColor}`}
+                  />
+                  <p className="text-xs font-semibold text-white drop-shadow-md ">{p.first_name}</p>
                 </div>
                 {idx === 0 && filteredRoomPlayers.length > 1 && (
                   <span className="text-xs font-bold text-white drop-shadow-md -mt-4">VS</span>
@@ -138,12 +143,13 @@ export function GameHeader({
 
       </div>
 
-      <div className="text-center text-xs font-bold text-white drop-shadow-md">Игра №{game.id}</div>
-
-      <div className="flex justify-center items-center gap-4">
-        <div className={`text-lg font-extrabold drop-shadow-md ${turnInfo.color}`}>
-          ХОД: {turnInfo.text}
+      <div className="flex justify-between items-center">
+        {/* left */}
+        <div className="flex flrx-col justify-center items-center gap-4">          
+          <div className={`text-lg font-extrabold drop-shadow-md ${turnInfo.color}`}>ХОД: {turnInfo.text}</div>
         </div>
+        {/* right */}
+        <KilledPiecesRow killed={[killed.b, killed.w]} size={30} className="my-1 gap-4" />
       </div>
     </div>
   );

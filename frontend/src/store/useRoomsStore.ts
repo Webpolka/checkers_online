@@ -20,6 +20,7 @@ interface RoomsState {
   currentRoom: Room | null;
   currentGame: Game | null;
   player: Player | null;
+  onlineCount: number;
 
   connect: () => void;
   initPlayer: () => Player;
@@ -47,6 +48,7 @@ export const useRoomsStore = create<RoomsState>()(
       currentRoom: null,
       currentGame: null,
       player: null,
+      onlineCount: 0,
 
       /* ---------- player ---------- */
       initPlayer: () => {
@@ -138,6 +140,11 @@ export const useRoomsStore = create<RoomsState>()(
             }));
           },
         );
+
+        //  онлайн игроки
+        socket.on("online_count", (count: number) => {
+          set({ onlineCount: count });
+        });
 
         socket.on("disconnect", () => set({ socket: null }));
       },

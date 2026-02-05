@@ -41,7 +41,7 @@ export const GameCard = ({ game, currentPlayer, onJoin, onDelete }: Props) => {
   const gameText = game.mode === "eve" && game.status === "waiting" && game.pausedByCreator ? "Продолжить" : "Начать";
 
   return (
-    <div className="bg-gradient-to-br from-purple-700 via-indigo-700 to-blue-700 rounded-2xl shadow-xl p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 transition hover:scale-[1.01] duration-200">
+    <div className="bg-gradient-to-br from-purple-950 via-indigo-800 to-blue-950 rounded-2xl shadow-lg shadow-black/60 p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 transition hover:scale-[1.01] duration-200">
       {/* Левая часть */}
       <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">

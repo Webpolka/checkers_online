@@ -115,6 +115,8 @@ const createBot = (id: string, name: string): Player => ({
   isAI: true,
 });
 
+const onlinePlayers = new Map<string, number>();
+
 // ---------------- SOCKET.IO ----------------
 io.on("connection", (socket) => {
   console.log("New websocket:", socket.id);
@@ -129,6 +131,13 @@ io.on("connection", (socket) => {
       lastSeen: now,
     };
     (socket as any).playerId = player.id;
+
+    // добавляем или увеличиваем игроков онлайн
+    const playerId = (socket as any).playerId;
+    if (!playerId) return;    
+    
+    const count = onlinePlayers.get(playerId) || 0;
+    onlinePlayers.set(playerId, count + 1);
 
     rooms.forEach((room) => {
       // обновляем только если не EVE
@@ -154,7 +163,12 @@ io.on("connection", (socket) => {
     });
 
     socket.emit("rooms_updated", getVisibleRoomsForPlayer(player.id));
+    broadcastOnline();
   });
+
+  function broadcastOnline() {
+    io.emit("online_count", onlinePlayers.size);
+  }
 
   // ---------------- ROOMS ----------------
   socket.on("get_rooms", () => {
@@ -344,9 +358,9 @@ io.on("connection", (socket) => {
 
       socket.join(room.id);
 
-      if(game.players.length === 2){
-         game.status = "started";
-      } 
+      if (game.players.length === 2) {
+        game.status = "started";
+      }
     }
     // EVE: просто стартуем игру, не добавляем игрока
     else if (game.mode === "eve") {
@@ -380,7 +394,7 @@ io.on("connection", (socket) => {
     // Если EVE — всегда переводим в ожидание при выходе (чтобы можно было нажать "Начать" заново)
     if (game.mode === "eve") {
       game.status = "waiting";
-      game.pausedByCreator = true;   
+      game.pausedByCreator = true;
     }
 
     broadcastRoomsUpdate();
@@ -469,7 +483,19 @@ io.on("connection", (socket) => {
         }
       }),
     );
+
     console.log("socket disconnected", socket.id);
+
+    const count = onlinePlayers.get(playerId);
+    if (!count) return;
+
+    if (count <= 1) {
+      onlinePlayers.delete(playerId);
+    } else {
+      onlinePlayers.set(playerId, count - 1);
+    }
+
+    broadcastOnline();
   });
 });
 

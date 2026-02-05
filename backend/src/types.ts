@@ -50,7 +50,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
-  pausedByCreator?:boolean;
+  pausedByCreator?: boolean;
   mode: GameMode;
   history: Move<TMovePayload>[];
   state?: TState;
@@ -85,4 +85,8 @@ export interface CheckersState {
   movesCount: number;
   completed: boolean;
   winner?: "w" | "b";
+  killed?: {
+    w: number; // сколько белых убито
+    b: number; // сколько черных убито
+  };
 }

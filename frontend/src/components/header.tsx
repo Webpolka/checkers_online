@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "@/components/ui/appButton";
+import { useFullscreen } from "@/hooks/useFullScreen";
 
 type HeaderProps = {
   title: string;
@@ -9,6 +10,12 @@ type HeaderProps = {
 
 export const Header = ({ title, rightContent }: HeaderProps) => {
   const navigate = useNavigate();
+  const { closeFullscreen } = useFullscreen();
+
+  const welcome = () => {
+    closeFullscreen();
+    navigate("/welcome")
+  }
 
   return (
     <div className="sticky top-0 z-10 bg-gradient-to-br from-blue-700/50 via-purple-700/50 to-indigo-800/50 sm:shadow-2xl sm:shadow-black/50 px-3 sm:px-6">
@@ -18,7 +25,7 @@ export const Header = ({ title, rightContent }: HeaderProps) => {
         <div className="flex gap-2 shrink-0">
           <AppButton
             variant="secondary"
-            onClick={() => navigate("/welcome")}
+            onClick={welcome}
             className="p-2 !text-base rounded-xl shadow-lg hover:scale-105 transition-transform duration-200"
           >
             <svg className="w-5 h-5 flex-shrink-0 text-white drop-shadow-md transition-transform duration-200">

@@ -73,11 +73,11 @@ export function GamePage() {
       <img
         src="/images/game-bg.webp"
         alt="Фон шашек"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
+        className="fixed inset-0 w-full h-full object-cover -z-10"
       />
 
       {/* ===== Полупрозрачный градиент сверху ===== */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40 -z-9"></div>
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40 -z-9"></div>
 
       <GameHeader
         game={game}
@@ -102,3 +102,4 @@ export function GamePage() {
     </div>
   );
 }
+

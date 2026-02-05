@@ -4,6 +4,7 @@ import type { ServerRoom } from "../../types.js";
 import { CheckersService } from "./services.js";
 import { Server } from "socket.io";
 import { triggerAIMoveIfNeeded } from "./triggerAI.js";
+import { updateKilledPieces } from "./updateKilled.js";
 
 
 /**
@@ -34,6 +35,7 @@ export function applyCheckersMove(
     payload: move.payload,
   });
 
+  updateKilledPieces(game);
   // обновляем игру всем в комнате
   io.to(room.id).emit("game_updated", game);
 

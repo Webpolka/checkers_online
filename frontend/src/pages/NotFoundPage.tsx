@@ -1,8 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "@/components/ui/appButton";
+import { useFullscreen } from "@/hooks/useFullScreen";
 
 export const NotFoundPage = () => {
     const navigate = useNavigate();
+    const { openFullscreen } = useFullscreen();
+
+    const back = () => {
+        openFullscreen();
+        navigate("/welcome")
+    }
 
     return (
         <div className="relative h-screen w-screen flex flex-col items-center justify-center text-white px-6 text-center">
@@ -20,7 +27,7 @@ export const NotFoundPage = () => {
 
             <h1 className="text-[140px] leading-[1.1] tracking-[0.3em] font-extrabold mb-0">404</h1>
             <p className="text-2xl font-semibold mb-8">Страница не найдена</p>
-            <AppButton variant="primary" onClick={() => navigate("/welcome")}>
+            <AppButton variant="primary" onClick={back}>
                 Вернуться на главную
             </AppButton>
         </div>

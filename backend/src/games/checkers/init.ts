@@ -3,14 +3,14 @@ import type { CheckersState } from "../../types.js";
 
 export function initCheckersGame(): CheckersState {
   const board: CheckersState["board"] = [
-    [null,"b",null,"b",null,"b",null,"b"],
-    ["b",null,"b",null,"b",null,"b",null],
-    [null,"b",null,"b",null,"b",null,"b"],
-    [null,null,null,null,null,null,null,null],
-    [null,null,null,null,null,null,null,null],
-    ["w",null,"w",null,"w",null,"w",null],
-    [null,"w",null,"w",null,"w",null,"w"],
-    ["w",null,"w",null,"w",null,"w",null],
+    [null, "b", null, "b", null, "b", null, "b"],
+    ["b", null, "b", null, "b", null, "b", null],
+    [null, "b", null, "b", null, "b", null, "b"],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    ["w", null, "w", null, "w", null, "w", null],
+    [null, "w", null, "w", null, "w", null, "w"],
+    ["w", null, "w", null, "w", null, "w", null],
   ];
 
   return {
@@ -21,5 +21,9 @@ export function initCheckersGame(): CheckersState {
     movesCount: 0,
     completed: false,
     winner: undefined,
+    killed: {
+      w: 0, // сколько белых убито
+      b: 0, // сколько черных убито
+    },
   };
 }

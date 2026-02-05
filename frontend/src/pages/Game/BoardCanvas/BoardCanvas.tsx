@@ -78,7 +78,7 @@ export function BoardCanvas({
   };
 
   return (
-    <div className="flex-1 w-full py-5 px-2">
+    <div className="flex-1 w-full pt-16 sm:pt-5 px-2">
       <div ref={containerRef} className="h-full w-full flex items-start mt-3 sm:mt-0 sm:items-center justify-center">
         <canvas
           ref={canvasRef}

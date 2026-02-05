@@ -23,16 +23,16 @@ export const SplashScreenPage = () => {
   }, [navigate]);
 
   return (
-    <div className="h-screen w-screen relative overflow-hidden flex items-center justify-center">
+    <div className="relative h-screen w-screen relative overflow-hidden flex items-center justify-center">
       {/* ===== Фоновое изображение ===== */}
       <img
         src="/images/splashscreen-bg.webp"
         alt="Фон шашек"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover"
       />
 
       {/* ===== Полупрозрачный градиент сверху ===== */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40"></div>
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40"></div>
 
       {/* ===== Контент ===== */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 space-y-6">

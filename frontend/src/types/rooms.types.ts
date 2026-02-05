@@ -18,7 +18,6 @@ export type Player = {
   hidden?: boolean;
 };
 
-
 // ----------------- Универсальная игра -----------------
 
 export type GameMode = "pvp" | "pve" | "eve";
@@ -28,7 +27,7 @@ export interface Room {
   id: string;
   name: string;
   mode: GameMode;
-  players: Player[];  
+  players: Player[];
   games: Game[];
   creator: Player;
   createdAt: number;
@@ -37,15 +36,15 @@ export interface Room {
 // Универсальная игра
 export interface Game<TState = unknown, TMovePayload = unknown> {
   id: string;
-  roomId: string;  
+  roomId: string;
   type: string; // название игры ("checkers", "cards", ...)
   players: Player[];
   status: "waiting" | "started" | "finished";
   creator: Player;
-  pausedByCreator?:boolean;
-  mode: GameMode; 
+  pausedByCreator?: boolean;
+  mode: GameMode;
   history: Move<TMovePayload>[]; // история ходов
-  state?: TState; // текущее состояние игры (например CheckersState)
+  state?: CheckersState; // текущее состояние игры (например CheckersState)
 }
 
 // ----------------- Шашки -----------------
@@ -76,10 +75,14 @@ export interface CheckersMove {
 export interface CheckersState {
   board: Board;
   currentPlayer: "w" | "b";
-  selected?: Position | null;        // выбранная шашка
-  availableMoves?: Position[];       // массив клеток, куда можно походить
+  selected?: Position | null; // выбранная шашка
+  availableMoves?: Position[]; // массив клеток, куда можно походить
   mandatoryPieces?: Position[];
   movesCount: number;
   completed: boolean;
   winner?: "w" | "b";
+  killed: {
+    w: number; // сколько белых убито
+    b: number; // сколько черных убито
+  };
 }

@@ -17,7 +17,7 @@ export const AppButton = ({
   disabled = false,
 }: ButtonProps) => {
   const baseClasses =
-    "cursor-pointer tracking-[0.05em] px-6 py-3 rounded-xl font-extrabold shadow-2xl transition transform active:scale-95 hover:scale-105 text-white/95 drop-shadow-md flex items-center justify-center gap-2";
+    "cursor-pointer tracking-[0.05em] px-4 py-3 rounded-xl font-extrabold shadow-2xl transition transform active:scale-95 hover:scale-105 text-white/95 drop-shadow-md flex items-center justify-center gap-2";
 
   const variantClasses = {
     // Основные действия: присоединиться, создать игру

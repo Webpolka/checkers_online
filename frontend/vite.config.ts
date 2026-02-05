@@ -15,9 +15,12 @@ export default defineConfig({
     proxy: {
       "/socket.io": {
         target: "http://localhost:3000",
-        ws: true,      // обязательно для WebSocket
+        ws: true, // обязательно для WebSocket
         changeOrigin: true,
       },
     },
+    host: true, // разрешаем все хосты
+    strictPort: true,
+    allowedHosts: ["subuncinated-shiftless-gertie.ngrok-free.dev"],
   },
 });

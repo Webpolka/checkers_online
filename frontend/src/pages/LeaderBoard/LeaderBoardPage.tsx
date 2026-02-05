@@ -1,5 +1,6 @@
 import { LeaderCard } from "./LeaderCard";
 import { Header } from "@/components/header";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Мока-данные
 export type PlayerScore = {
@@ -23,24 +24,34 @@ const MOCK_PLAYERS: PlayerScore[] = [
 ];
 export const LeaderBoardPage = () => {
   return (
-    <div className="relative h-screen flex flex-col">
+    <div className="relative w-screen h-screen flex flex-col">
        {/* ===== Фоновое изображение ===== */}
       <img
         src="/images/rooms-bg.webp"
         alt="Фон шашек"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover"
       />
 
       {/* ===== Полупрозрачный градиент сверху ===== */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40"></div>
+      <div className="fixed inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/40 to-indigo-700/40"></div>
 
       <Header title="Таблица лидеров" />
 
-      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-700/50 via-purple-700/50 to-indigo-800/50 px-4 md:px-6 pt-6">
+      <div className="flex-1 relative bg-gradient-to-br from-blue-700/50 via-purple-700/50 to-indigo-800/50 px-4 md:px-6 pt-6">
         <div className="max-w-4xl mx-auto space-y-4 pb-24">
-          {MOCK_PLAYERS.map(player => (
-            <LeaderCard key={player.rank} player={player} />
+            <AnimatePresence>
+          {MOCK_PLAYERS.map((player,idx) => (
+              <motion.div
+                key={`rule-${idx}`}
+                layout
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ delay: idx * 0.25, duration: 0.2, ease: "easeInOut" }}>
+            <LeaderCard player={player} />
+            </motion.div>
           ))}
+          </AnimatePresence>
         </div>
       </div>
     </div>

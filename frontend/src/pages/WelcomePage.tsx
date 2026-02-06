@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useFullscreen } from "@/hooks/useFullScreen";
-import { FullscreenExitButton } from "@/components/ui/fullScreenExit";
+// import { FullscreenExitButton } from "@/components/ui/fullScreenExit";
+import { CloseTabButton } from "@/components/ui/windowExit";
 
 export const WelcomePage = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export const WelcomePage = () => {
       <div className="fixed inset-0 bg-gradient-to-b from-blue-500/40 via-blue-600/50 to-indigo-800/70" />
        
         {/* ===== Кнопка выхода из fullscreen ===== */}
-      <FullscreenExitButton />
+      <CloseTabButton />
 
       {/* ===== Центральный контейнер ===== */}
       <div className="relative z-10 w-full max-w-[900px]">

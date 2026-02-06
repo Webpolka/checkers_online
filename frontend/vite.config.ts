@@ -12,6 +12,10 @@ export default defineConfig({
     },
   },
   server: {
+    open: true,
+    fs: {
+      strict: false, // разрешаем доступ к файловой системе
+    },
     proxy: {
       "/socket.io": {
         target: "http://localhost:3000",
@@ -22,5 +26,8 @@ export default defineConfig({
     host: true, // разрешаем все хосты
     strictPort: true,
     allowedHosts: ["subuncinated-shiftless-gertie.ngrok-free.dev"],
+  },
+  build: {
+    outDir: "dist",
   },
 });

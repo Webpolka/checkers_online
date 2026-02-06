@@ -16,7 +16,7 @@ export const FullscreenExitButton: React.FC<FullscreenExitButtonProps> = ({
     <button
       onClick={closeFullscreen}
       className={`
-        absolute top-10 right-10
+        absolute top-5 right-5 sm:top-10 sm:right-10
         flex items-center justify-center
         rounded-full
         cursor-pointer

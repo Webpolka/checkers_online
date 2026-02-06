@@ -1,11 +1,91 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>draughts-front</title>
+
+    <!-- FAVICON (поменяешь пути потом) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- MOBILE VIEWPORT -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <!-- ОСНОВНОЙ SEO -->
+    <title>Онлайн шашки — играть бесплатно против бота и друзей</title>
+
+    <meta
+      name="description"
+      content="Играй в онлайн шашки бесплатно в браузере: против бота, друзей или смотри бот против бота. Создавай комнаты и играй без регистрации на телефоне и ПК."
+    />
+
+    <meta
+      name="keywords"
+      content="шашки онлайн, играть в шашки, checkers online, шашки против бота, онлайн шашки с другом, multiplayer checkers, игра шашки бесплатно"
+    />
+
+    <meta name="author" content="Wtemu Games" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- THEME COLOR -->
+    <meta name="theme-color" content="#4338ca" />
+    <meta name="msapplication-navbutton-color" content="#4338ca" />
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Шашки онлайн" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-touch-fullscreen" content="yes" />
+
+    <!-- Android PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="full-screen" content="yes" />
+    <meta name="screen-orientation" content="portrait" />
+
+    <!-- OPEN GRAPH (Discord / Telegram / VK / WhatsApp) -->
+    <meta
+      property="og:title"
+      content="Онлайн шашки — играй против бота и друзей"
+    />
+    <meta
+      property="og:description"
+      content="Бесплатные онлайн шашки в браузере. Комнаты, мультиплеер, бот против бота и против игроков."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://checkers.wtemu.ru" />
+    <meta property="og:image" content="https://checkers.wtemu.ru/preview.png" />
+    <meta property="og:site_name" content="Online Checkers" />
+
+    <!-- TWITTER PREVIEW -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Онлайн шашки — бесплатно в браузере" />
+    <meta
+      name="twitter:description"
+      content="Играй в шашки против бота или друзей онлайн."
+    />
+    <meta
+      name="twitter:image"
+      content="https://checkers.wtemu.ru/preview.png"
+    />
+
+    <!-- CANONICAL -->
+    <link rel="canonical" href="https://checkers.wtemu.ru" />
+
+    <!-- PWA manifest (если захочешь как приложение) -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- PRELOAD (ускорение шрифтов/логотипа если есть) -->
+    <!--
+    <link rel="preload" href="/fonts/main.woff2" as="font" type="font/woff2" crossorigin>
+    -->
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -1,16 +1,16 @@
-// import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, HashRouter } from "react-router-dom";
-import './index.css'
-import { App } from './App.tsx'
+import "./index.css";
+import { App } from "./App.tsx";
 
-const Router =
-  import.meta.env.MODE === "production" ? HashRouter : BrowserRouter;
+const RouterComponent =
+  import.meta.env.MODE === "development" ? HashRouter : BrowserRouter;
 
-createRoot(document.getElementById('root')!).render(
-  // <StrictMode>
-    <Router>
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <RouterComponent>
       <App />
-    </Router>
-  // </StrictMode>
-)
+    </RouterComponent>
+  </StrictMode>
+);

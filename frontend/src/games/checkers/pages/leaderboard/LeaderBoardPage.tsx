@@ -47,7 +47,7 @@ export const LeaderBoardPage = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -30 }}
-                transition={{ delay: idx * 0.25, duration: 0.2, ease: "easeInOut" }}>
+                transition={{ delay: idx * 0.12, duration: 0.2, ease: "easeInOut" }}>
             <LeaderCard player={player} />
             </motion.div>
           ))}

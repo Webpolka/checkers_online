@@ -28,5 +28,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "../backend/src/games", "../backend/src/types.ts"]
+ "include": ["src", "../backend/src/games", "../backend/src/types.ts"]
 }

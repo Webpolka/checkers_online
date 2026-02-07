@@ -1,4 +1,4 @@
-// src/utils/formatTime.ts
+// shared/lib/formatTime.ts
 
 /**
  * ==========================================================

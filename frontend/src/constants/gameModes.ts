@@ -1,5 +1,5 @@
 // src/constants/gameModes.ts
-import type{ GameMode } from "@/types/rooms.types";
+import type { GameMode } from "@/entities/game/types";
 
 export const GAME_MODE_LABELS: Record<GameMode, string> = {  
   pve: "PvE — Игрок vs ИИ",

@@ -19,6 +19,6 @@
     "moduleDetection": "force",  // <- добавляем, чтобы TS правильно разрешал модули без .js
     "allowImportingTsExtensions": false  // <- запрещаем указывать .ts
   },
-  "include": ["src/**/*", "src/types.ts"],
+  "include": ["src/**/*", "src/games/checkers/types.ts"],
   "exclude": ["node_modules", "dist"]
 }
